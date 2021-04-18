@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap.rtl.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-grid.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-grid.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-grid.rtl.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-grid.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-reboot.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-reboot.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-reboot.rtl.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-reboot.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-utilities.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-utilities.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-utilities.rtl.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-utilities.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>タスク管理アプリ</title>
+</head>
+
+<body class="container">
+    <div id="app">
+        <router-link to="/task1">タスク一覧</router-link> |
+        <router-link to="/task2">タスク登録</router-link> |
+        <router-link to="/activity1">活動の履歴</router-link> |
+        <router-link to="/classification">種別の編集</router-link> |
+        <router-link to="/top">グラフ表示</router-link> |
+        <router-link to="/error">エラー表示</router-link>
+        <hr>
+        <router-view></router-view>
+    </div>
+    <script type="text/x-template" id="task1">
+        <section>
+            <h3>タスク一覧</h3>
+            <a>
+                優先度:
+                <select>
+                    <option>ALL</option>
+                    <option>★</option>
+                    <option>●</option>
+                    <option>▲</option>
+                    <option>済</option>
+                </select>
+            </a> |
+            <a>
+                表示数：
+                <select>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </a>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col" class="collapse">ID</th>
+                        <th scope="col">タスク</th>
+                        <th scope="col">優先度</th>
+                        <th scope="col">活動数</th>
+                        <th scope="col">種別</th>
+                        <th scope="col">更新</th>
+                        <th scope="col">削除</th>
+                        <th scope="col">更新日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="b,index in box">
+                        <td scope="row">[[index+1]]</td>
+                        <td scope="row" class="collapse">[[ b[0] ]]</td>
+                        <td scope="row"><router-link :to="`/activity2/${b[0]}`">[[ b[1] ]]</router-link></td>
+                        <td scope="row" v-if="b[2] == 1">　★</td>
+                        <td scope="row" v-else-if="b[2] == 2">　●</td>
+                        <td scope="row" v-else-if="b[2] == 3">　▲</td>
+                        <td scope="row" v-else-if="b[2] == 4">　済</td>
+                        <td scope="row">[[ b[3] ]]</td>
+                        <td scope="row">[[ b[4] ]]</td>
+                        <td scope="row"><button>更新</button></td>
+                        <td scope="row"><button>削除</button></td>
+                        <td scope="row">[[ b[5] ]]</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>1/1</p>
+        </section>
+    </script>
+    <script type="text/x-template" id="task2">
+        <section>
+            <h3>タスク登録/タスク更新</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col">項目</th>
+                        <th scope="col">内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">1</td>
+                        <td scope="row">タスク</td>
+                        <td scope="row"><input v-model="task" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">2</td>
+                        <td scope="row">優先度</td>
+                        <td scope="row">
+                            <select v-model="prior">
+                                <option disabled selected>選択してください</option>
+                                <option>高い</option>
+                                <option>普通</option>
+                                <option>低い</option>
+                                <option>済み</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td scope="row">3</td>
+                        <td scope="row">種別</td>
+                        <td scope="row">
+                            <select v-model="genre">
+                                <option disabled selected>選択してください</option>
+                                <option v-for="g in genreBox">[[ g[0] ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td scope="row">4</td>
+                        <td scope="row">日付</td>
+                        <td scope="row"><input v-model="date" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                        <td scope="row"><button @click="axiosInsert">登録</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </script>
+    <script type="text/x-template" id="activity1">
+        <section>
+            <h3>活動の履歴</h3>
+            <a>
+                タスク：
+                <select>
+                    <option selected>ALL</option>
+                    <option v-for="t in taskBox">[[ t[0] ]]</option>
+                </select>
+            </a> |
+            <a>
+                表示数：
+                <select>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </a>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">日付</th>
+                        <th scope="col">タスク</th>
+                        <th scope="col">本日</th>
+                        <th scope="col">NEXT</th>
+                        <th scope="col">更新</th>
+                        <th scope="col">削除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="a,index in activityBox">
+                        <td scope="row">[[ index ]]</td>
+                        <td scope="row">[[ a[0] ]]</td>
+                        <td scope="row">[[ a[1] ]]</td>
+                        <td scope="row">[[ a[2] ]]</td>
+                        <td scope="row">[[ a[3] ]]</td>
+                        <td scope="row">[[ a[4] ]]</td>
+                        <td scope="row"><button>更新</button></td>
+                        <td scope="row"><button>削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>1/1</p>
+        </section>
+    </script>
+    <script type="text/x-template" id="activity2">
+        <section>
+            <h3>[[ task ]]・活動履歴</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col">項目</th>
+                        <th scope="col">内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">1</td>
+                        <td scope="row">タスク</td>
+                        <td scope="row">
+                            <select  v-model="task">
+                                <option selected>[[ task ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td scope="row">2</td>
+                        <td scope="row">本日</td>
+                        <td scope="row"><textarea v-model="today"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">3</td>
+                        <td scope="row">NEXT</td>
+                        <td scope="row"><textarea v-model="next"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">4</td>
+                        <td scope="row">日付</td>
+                        <td scope="row"><input v-model="date" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                        <td scope="row"><button @click="axiosInsert">登録</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col" class="collapse">ID</th>
+                        <th scope="col">日付</th>
+                        <th scope="col">タスク</th>
+                        <th scope="col">本日</th>
+                        <th scope="col">NEXT</th>
+                        <th scope="col">更新</th>
+                        <th scope="col">削除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="a,index in activityBox">
+                        <td scope="row">[[ index+1 ]]</td>
+                        <td scope="row" class="collapse">[[ a[0] ]]</td>
+                        <td scope="row">[[ a[1] ]]</td>
+                        <td scope="row">[[ a[2] ]]</td>
+                        <td scope="row">[[ a[3] ]]</td>
+                        <td scope="row">[[ a[4] ]]</td>
+                        <td scope="row"><button>更新</button></td>
+                        <td scope="row"><button>削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>1/1</p>
+        </section>
+    </script>
+    <script type="text/x-template" id="classification">
+        <section>
+            <h3>種別の編集</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col">項目</th>
+                        <th scope="col">内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">1</td>
+                        <td scope="row">種別</td>
+                        <td scope="row"><input v-model="genre" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">2</td>
+                        <td scope="row">日付</td>
+                        <td scope="row"><input v-model="date" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                        <td scope="row"><button @click="axiosInsert">登録</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <a>
+                表示数：
+                <select>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </a>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col" class="collapse">ID</th>
+                        <th scope="col">種別</th>
+                        <th scope="col">日付</th>
+                        <th scope="col">更新</th>
+                        <th scope="col">削除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="b,index in box">
+                        <td scope="row">[[ index+1 ]]</td>
+                        <td scope="row" class="collapse">[[ b[0] ]]</td>
+                        <td scope="row">[[ b[1] ]]</td>
+                        <td scope="row">[[ b[2] ]]</td>
+                        <td scope="row"><button>更新</button></td>
+                        <td scope="row"><button>削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>1/1</p>
+        </section>
+    </script>
+    <script type="text/x-template" id="error">
+        <section>
+            <h3>エラー表示</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">項</th>
+                        <th scope="col">日付</th>
+                        <th scope="col">エラー箇所</th>
+                        <th scope="col">エラー内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">1</td>
+                        <td scope="row">2021/4/17</td>
+                        <td scope="row">種別</td>
+                        <td scope="row">だよ</td>
+                    </tr>
+                    <tr>
+                        <td scope="row">2</td>
+                        <td scope="row">2021/4/17</td>
+                        <td scope="row">日付</td>
+                        <td scope="row">だよ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </script>
+
+
+    <script src="{% static 'vue.js' %}"></script>
+    <script src="{% static 'vue-router.js' %}"></script>
+    <script src="{% static 'axios.js' %}"></script>
+    <script src="{% static 'main.js' %}"></script>
+</body>
+
+</html>
