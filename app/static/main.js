@@ -96,7 +96,7 @@ const router = new VueRouter({
                 data: function () {
                     return {
                         taskBox: [],
-                        activityBox:[],
+                        activityBox: [],
                     }
                 },
                 methods: {
@@ -126,6 +126,51 @@ const router = new VueRouter({
             }
         },
         {
+            path: "/activity2",
+            component: {
+                template: "#activity2-1",
+                delimiters: ["[[", "]]"],
+                data: function () {
+                    return {
+                        taskBox: [],
+                        task: "選択してください",
+                        today: "",
+                        next: "",
+                        date: "",
+                    }
+                },
+                methods: {
+                    axiosSelect2: function () {
+                        axios.post("http://localhost:8000/app/taskNameSelect2")
+                            .then(res => {
+                                this.taskBox = res.data.box
+                            })
+                            .catch(res => {
+                                alert(res)
+                            });
+                    },
+                    axiosInsert: function () {
+                        const params = new URLSearchParams();
+                        params.append("today", this.today);
+                        params.append("next", this.next);
+                        params.append("date", this.date);
+                        axios.post(`http://localhost:8000/app/activityInsert/${this.task}`, params)
+                            .then(res => {
+                                test();
+                                this.axiosSelect2();
+                            })
+                            .catch(res => {
+                                alert(res);
+                            });
+                    },
+                },
+                created: function () {
+                    this.axiosSelect2();
+                    this.date = getTime();
+                }
+            },
+        },
+        {
             path: "/activity2/:key",
             component: {
                 template: "#activity2",
@@ -140,15 +185,6 @@ const router = new VueRouter({
                     }
                 },
                 methods: {
-                    axiosSelect: function () {
-                        axios.post(`http://localhost:8000/app/taskNameSelect/${this.$route.params.key}`)
-                            .then(res => {
-                                this.task = res.data.box[0][0];
-                            })
-                            .catch(res => {
-                                console.log(res);
-                            });
-                    },
                     axiosSelect2: function () {
                         axios.post(`http://localhost:8000/app/activitySelect2/${this.$route.params.key}`)
                             .then(res => {
@@ -175,7 +211,7 @@ const router = new VueRouter({
                     },
                 },
                 created: function () {
-                    this.axiosSelect();
+                    this.task = this.$route.params.key;
                     this.axiosSelect2();
                     this.date = getTime();
                 }

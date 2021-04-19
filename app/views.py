@@ -143,21 +143,6 @@ def classificationNameSelect(request):
     return HttpResponse(msg)
 
 
-def taskNameSelect(request, num):
-    if(request.method == "POST"):
-        conn = sql3.connect(dbname)
-        cur = conn.cursor()
-        sql = "SELECT task FROM Task WHERE id = ?"
-        cur.execute(sql, (num,))
-        params = {
-            "box": cur.fetchall(),
-        }
-        cur.close()
-        conn.close()
-        return JsonResponse(params)
-    return HttpResponse(msg)
-
-
 def taskInsert(request):
     if(request.method == "POST"):
         task = request.POST["task"]
@@ -199,14 +184,16 @@ def taskSelect(request, num):
     return HttpResponse(msg)
 
 
-def activityInsert(request, num):
+def activityInsert(request, txt):
     if(request.method == "POST"):
-        task_id = num
         today = request.POST["today"]
         Next = request.POST["next"]
         date = dt.strptime(request.POST["date"], '%Y-%m-%d')
         conn = sql3.connect(dbname)
         cur = conn.cursor()
+        sql = "SELECT id FROM Task WHERE task = ?"
+        cur.execute(sql,(txt,))
+        task_id = cur.fetchall()[0][0]
         sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
         cur.execute(sql, (task_id, today, Next, date))
         conn.commit()
@@ -218,10 +205,12 @@ def activityInsert(request, num):
     return JsonResponse(params)
 
 
-def activitySelect2(request, num):
-    task_id = num
+def activitySelect2(request, txt):
     conn = sql3.connect(dbname)
     cur = conn.cursor()
+    sql = "SELECT id FROM Task WHERE task = ?"
+    cur.execute(sql,(txt,))
+    task_id = cur.fetchall()[0][0]
     sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE task_id = ? ORDER BY Activity.date DESC"
     box = []
     for i in cur.execute(sql, (task_id,)):

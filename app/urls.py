@@ -24,9 +24,8 @@ urlpatterns = [
     path("classificationNameSelect",views.classificationNameSelect),
     path("taskInsert",views.taskInsert),
     path("taskSelect/<int:num>",views.taskSelect),
-    path("taskNameSelect/<int:num>",views.taskNameSelect),
     path("taskNameSelect2",views.taskNameSelect2),
-    path("activityInsert/<int:num>",views.activityInsert),
+    path("activityInsert/<str:txt>",views.activityInsert),
     path("activitySelect1",views.activitySelect1),
-    path("activitySelect2/<int:num>",views.activitySelect2),
+    path("activitySelect2/<str:txt>",views.activitySelect2),
 ]
