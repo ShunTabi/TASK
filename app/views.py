@@ -192,7 +192,7 @@ def activityInsert(request, txt):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
         sql = "SELECT id FROM Task WHERE task = ?"
-        cur.execute(sql,(txt,))
+        cur.execute(sql, (txt,))
         task_id = cur.fetchall()[0][0]
         sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
         cur.execute(sql, (task_id, today, Next, date))
@@ -202,25 +202,6 @@ def activityInsert(request, txt):
         }
         cur.close()
         conn.close()
-    return JsonResponse(params)
-
-
-def activitySelect2(request, txt):
-    conn = sql3.connect(dbname)
-    cur = conn.cursor()
-    sql = "SELECT id FROM Task WHERE task = ?"
-    cur.execute(sql,(txt,))
-    task_id = cur.fetchall()[0][0]
-    sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE task_id = ? ORDER BY Activity.date DESC"
-    box = []
-    for i in cur.execute(sql, (task_id,)):
-        box.append([i[0], dt.strptime(
-            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[2], i[3], i[4]])
-    params = {
-        "box": box,
-    }
-    cur.close()
-    conn.close()
     return JsonResponse(params)
 
 
@@ -244,6 +225,31 @@ def activitySelect1(request):
     cur.execute(sql)
     box = []
     for i in cur.execute(sql):
+        box.append([i[0], dt.strptime(
+            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[2], i[3], i[4]])
+    params = {
+        "box": box,
+    }
+    cur.close()
+    conn.close()
+    return JsonResponse(params)
+
+
+def activitySelect2(request, txt):
+    conn = sql3.connect(dbname)
+    cur = conn.cursor()
+    output = []
+    if(txt == "ALL"):
+        sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC"
+        output = cur.execute(sql)
+    else:
+        sql = "SELECT id FROM Task WHERE task = ?"
+        cur.execute(sql, (txt,))
+        task_id = cur.fetchall()[0][0]
+        sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE task_id = ? ORDER BY Activity.date DESC"
+        output = cur.execute(sql, (task_id,))
+    box = []
+    for i in output:
         box.append([i[0], dt.strptime(
             i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[2], i[3], i[4]])
     params = {

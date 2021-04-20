@@ -200,7 +200,7 @@
             <h3>活動の履歴</h3>
             <a>
                 タスク：
-                <select>
+                <select v-model="task" @change="axiosSelect1">
                     <option selected>ALL</option>
                     <option v-for="t in taskBox">[[ t[0] ]]</option>
                 </select>
@@ -219,7 +219,7 @@
                 <thead>
                     <tr>
                         <th scope="col">項</th>
-                        <th scope="col">ID</th>
+                        <th scope="col" class="collapse">ID</th>
                         <th scope="col">日付</th>
                         <th scope="col">タスク</th>
                         <th scope="col">本日</th>
@@ -230,12 +230,12 @@
                 </thead>
                 <tbody>
                     <tr v-for="a,index in activityBox">
-                        <td scope="row">[[ index ]]</td>
-                        <td scope="row">[[ a[0] ]]</td>
+                        <td scope="row">[[ index+1 ]]</td>
+                        <td scope="row" class="collapse">[[ a[0] ]]</td>
                         <td scope="row">[[ a[1] ]]</td>
                         <td scope="row">[[ a[2] ]]</td>
-                        <td scope="row">[[ a[3] ]]</td>
-                        <td scope="row">[[ a[4] ]]</td>
+                        <td scope="row"><pre>[[ a[3] ]]</pre></td>
+                        <td scope="row"><pre>[[ a[4] ]]</pre></td>
                         <td scope="row"><button>更新</button></td>
                         <td scope="row"><button>削除</button></td>
                     </tr>
@@ -287,6 +287,17 @@
                     </tr>
                 </tbody>
             </table>
+            <hr>
+            <a>
+                表示数：
+                <select>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </a>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -306,8 +317,8 @@
                         <td scope="row" class="collapse">[[ a[0] ]]</td>
                         <td scope="row">[[ a[1] ]]</td>
                         <td scope="row">[[ a[2] ]]</td>
-                        <td scope="row">[[ a[3] ]]</td>
-                        <td scope="row">[[ a[4] ]]</td>
+                        <td scope="row"><pre>[[ a[3] ]]</pre></td>
+                        <td scope="row"><pre>[[ a[4] ]]</pre></td>
                         <td scope="row"><button>更新</button></td>
                         <td scope="row"><button>削除</button></td>
                     </tr>

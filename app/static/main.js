@@ -97,6 +97,7 @@ const router = new VueRouter({
                     return {
                         taskBox: [],
                         activityBox: [],
+                        task:"ALL",
                     }
                 },
                 methods: {
@@ -110,7 +111,7 @@ const router = new VueRouter({
                             });
                     },
                     axiosSelect1: function () {
-                        axios.post(`http://localhost:8000/app/activitySelect1`)
+                        axios.post(`http://localhost:8000/app/activitySelect2/${this.task}`)
                             .then(res => {
                                 this.activityBox = res.data.box;
                             })
