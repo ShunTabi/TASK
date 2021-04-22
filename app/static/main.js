@@ -97,7 +97,7 @@ const router = new VueRouter({
                     return {
                         taskBox: [],
                         activityBox: [],
-                        task:"ALL",
+                        task: "ALL",
                     }
                 },
                 methods: {
@@ -228,13 +228,17 @@ const router = new VueRouter({
                         date: "",
                         genre: "",
                         box: [],
+                        ONOFF: true,
+                        Id: 0,
                     }
                 },
                 methods: {
                     axiosSelect: function () {
-                        axios.post("http://localhost:8000/app/classificationSelect/1")
+                        const params = new URLSearchParams();
+                        params.append("method", "SELECT1");
+                        axios.post("http://localhost:8000/app/classification/1", params)
                             .then(res => {
-                                // alert(res.data.box);
+                                // console.log(res.data.box);
                                 this.box = res.data.box;
                             })
                             .catch(res => {
@@ -245,14 +249,48 @@ const router = new VueRouter({
                         const params = new URLSearchParams();
                         params.append("genre", this.genre);
                         params.append("date", this.date);
-                        axios.post("http://localhost:8000/app/classificationInsert", params)
+                        params.append("method", "INSERT");
+                        axios.post("http://localhost:8000/app/classification/1", params)
                             .then(res => {
                                 test();
                                 this.axiosSelect();
-                            }).catch(function (error) { alert(error) });
+                            })
+                            .catch(function (error) { alert(error) });
                     },
-                    axiosUpdate: function () { },//★★★
-                    axiosDelete: function () { }//★★★
+                    axiosUpdate1: function (tg) {
+                        const params = new URLSearchParams();
+                        params.append("Id", tg);
+                        params.append("method", "SELECT2")
+                        axios.post("http://localhost:8000/app/classification/1", params)
+                            .then(res => {
+                                // console.log(res.data);
+                                this.ONOFF = false;
+                                this.Id = tg;
+                                this.genre = res.data.box[0][0];
+                                this.date = res.data.box[0][1];
+                            })
+                            .catch(function (error) { alert(error) });
+                    },
+                    axiosUpdate2: function () {
+                        const params = new URLSearchParams();
+                        params.append("Id", this.Id);
+                        params.append("genre", this.genre);
+                        params.append("date", this.date);
+                        params.append("method", "UPDATE")
+                        axios.post("http://localhost:8000/app/classification/1", params)
+                            .then(res => {
+                                test();
+                                this.Id = 0;
+                                this.ONOFF = true;
+                                this.genre = "";
+                                this.date = getTime();
+                                this.axiosSelect();
+                            })
+                            .catch(function (error) { alert(error) });
+                    },
+                    axiosDelete: function (tg) {
+                        alert(tg);
+                    }
                 },
                 created: function () {
                     this.date = getTime();

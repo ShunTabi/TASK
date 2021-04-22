@@ -92,40 +92,57 @@ def index(request):
     return render(request, "index.html")
 
 
-def classificationInsert(request):
-    if(request.method == "POST"):
-        genre = request.POST["genre"]
-        date = dt.strptime(request.POST["date"], '%Y-%m-%d')
-        conn = sql3.connect(dbname)
-        cur = conn.cursor()
-        sql = "INSERT INTO Genre(genre,date,totalNumberOfActivity) VALUES(?,?,0)"
-        cur.execute(sql, (genre, date))
-        conn.commit()
-        params = {
-            "": "",
-        }
-        cur.close()
-        conn.close()
-        return JsonResponse(params)
-    return HttpResponse(msg)
-
-
-def classificationSelect(request, num):
-    if(request.method == "POST"):
-        conn = sql3.connect(dbname)
-        cur = conn.cursor()
+def classification(request, num):
+    method = request.POST["method"]
+    params = {}
+    conn = sql3.connect(dbname)
+    cur = conn.cursor()
+    if(method == "SELECT1"):
         sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT 10"
         box = []
         for i in cur.execute(sql):
             box.append([i[0], i[1], dt.strptime(
-                i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[3]])
+                i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
         params = {
             "box": box,
         }
-        cur.close()
-        conn.close()
-        return JsonResponse(params)
-    return HttpResponse(msg)
+    elif(method == "INSERT" or method == "UPDATE"):
+        genre = request.POST["genre"]
+        date = dt.strptime(request.POST["date"], '%Y-%m-%d')
+        if(method == "INSERT"):
+            sql = "INSERT INTO Genre(genre,date,totalNumberOfActivity) VALUES(?,?,?)"
+            cur.execute(sql, (genre, date, 0))
+            print("★★★")
+            print(request.POST)
+            print("A")
+        elif(method == "UPDATE"):
+            Id = request.POST["Id"]
+            sql = "UPDATE Genre SET genre=?,date=?,totalNumberOfActivity=? WHERE id=?"
+            cur.execute(sql, (genre, date, 0, Id))
+            print("★★★")
+            print(request.POST)
+            print("B")
+        conn.commit()
+    elif(method == "SELECT2"):
+        Id = request.POST["Id"]
+        sql = "SELECT genre,date FROM Genre WHERE id = ?"
+        box = []
+        for i in cur.execute(sql, (Id,)):
+            box.append(
+                [i[0], dt.strptime(i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+        params = {
+            "box": box,
+        }
+        print("C")
+    elif(method == "DELECT"):
+        return ""
+    cur.close()
+    conn.close()
+    return JsonResponse(params)
+
+
+def classificationDelete(request):
+    return ""
 
 
 def classificationNameSelect(request):
@@ -173,8 +190,7 @@ def taskSelect(request, num):
         box = []
         for i in cur.execute(sql):
             box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
-                i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d")])
-        cur.execute(sql)
+                i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
         params = {
             "box": box,
         }
@@ -211,7 +227,7 @@ def taskNameSelect2(request):
     sql = "SELECT task FROM Task"
     cur.execute(sql)
     params = {
-        "box":cur.fetchall()
+        "box": cur.fetchall()
     }
     cur.close()
     conn.close()
@@ -226,7 +242,7 @@ def activitySelect1(request):
     box = []
     for i in cur.execute(sql):
         box.append([i[0], dt.strptime(
-            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[2], i[3], i[4]])
+            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
     params = {
         "box": box,
     }
@@ -251,7 +267,7 @@ def activitySelect2(request, txt):
     box = []
     for i in output:
         box.append([i[0], dt.strptime(
-            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y/%m/%d"), i[2], i[3], i[4]])
+            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
     params = {
         "box": box,
     }

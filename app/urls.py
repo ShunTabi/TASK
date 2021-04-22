@@ -19,8 +19,7 @@ from . import views
 
 urlpatterns = [
     path("",views.index),
-    path("classificationInsert",views.classificationInsert),
-    path("classificationSelect/<int:num>",views.classificationSelect),
+    path("classification/<int:num>",views.classification),
     path("classificationNameSelect",views.classificationNameSelect),
     path("taskInsert",views.taskInsert),
     path("taskSelect/<int:num>",views.taskSelect),

@@ -349,10 +349,15 @@
                         <td scope="row">日付</td>
                         <td scope="row"><input v-model="date" type="text"></td>
                     </tr>
-                    <tr>
+                    <tr v-if="ONOFF">
                         <td scope="row"></td>
                         <td scope="row"></td>
                         <td scope="row"><button @click="axiosInsert">登録</button></td>
+                    </tr>
+                    <tr v-else>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                        <td scope="row"><button @click="axiosUpdate2">更新</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -384,8 +389,8 @@
                         <td scope="row" class="collapse">[[ b[0] ]]</td>
                         <td scope="row">[[ b[1] ]]</td>
                         <td scope="row">[[ b[2] ]]</td>
-                        <td scope="row"><button>更新</button></td>
-                        <td scope="row"><button>削除</button></td>
+                        <td scope="row"><button @click="axiosUpdate1( b[0] )">更新</button></td>
+                        <td scope="row"><button @click="axiosDelete( b[0] )">削除</button></td>
                     </tr>
                 </tbody>
             </table>
