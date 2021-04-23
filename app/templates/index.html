@@ -28,9 +28,9 @@
 
 <body class="container">
     <div id="app">
-        <router-link to="/activity">活動</router-link> |
-        <router-link to="/task">タスク</router-link> |
-        <router-link to="/classification">種別</router-link> |
+        <router-link to="/task">タスク一覧</router-link> |
+        <router-link to="/activity">活動の履歴</router-link> |
+        <router-link to="/classification">種別一覧</router-link> |
         <router-link to="/top">グラフ表示</router-link> |
         <router-link to="/error">エラー表示</router-link>
         <hr>
@@ -39,8 +39,8 @@
     <!--111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="task">
         <section>
-            <h3>タスク一覧</h3>
-            <table class="table table-striped">
+            <h3 @click="FC">タスク一覧</h3>
+            <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -94,7 +94,6 @@
                     </tr>
                 </tbody>
             </table>
-            <hr>
             <a>
                 優先度:
                 <select>
@@ -152,8 +151,8 @@
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="activity1">
         <section>
-            <h3>活動の履歴</h3>
-            <table class="table table-striped">
+            <h3 @click="FC">活動の履歴</h3>
+            <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -199,7 +198,6 @@
                     </tr>
                 </tbody>
             </table>
-            <hr>
             <a>
                 タスク：
                 <select v-model="task2" @change="axiosSELECT1">
@@ -249,8 +247,8 @@
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="activity2">
         <section>
-            <h3>[[ task ]]・活動履歴</h3>
-            <table class="table table-striped">
+            <h3 @click="FC">[[ task ]]</h3>
+            <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -283,14 +281,18 @@
                         <td scope="row">日付</td>
                         <td scope="row"><input v-model="date" type="text"></td>
                     </tr>
-                    <tr>
+                    <tr v-if="ONOFF">
                         <td scope="row"></td>
                         <td scope="row"></td>
                         <td scope="row"><button @click="axiosINSERT">登録</button></td>
                     </tr>
+                    <tr v-else>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                        <td scope="row"><button @click="axiosUPDATE">更新</button></td>
+                    </tr>
                 </tbody>
             </table>
-            <hr>
             <a>
                 表示数：
                 <select>
@@ -315,15 +317,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="a,index in activityBox">
+                    <tr v-for="b,index in activityBox">
                         <td scope="row">[[ index+1 ]]</td>
-                        <td scope="row" class="collapse">[[ a[0] ]]</td>
-                        <td scope="row">[[ a[1] ]]</td>
-                        <td scope="row">[[ a[2] ]]</td>
-                        <td scope="row"><pre>[[ a[3] ]]</pre></td>
-                        <td scope="row"><pre>[[ a[4] ]]</pre></td>
-                        <td scope="row"><button>更新</button></td>
-                        <td scope="row"><button>削除</button></td>
+                        <td scope="row" class="collapse">[[ b[0] ]]</td>
+                        <td scope="row">[[ b[1] ]]</td>
+                        <td scope="row">[[ b[2] ]]</td>
+                        <td scope="row"><pre>[[ b[3] ]]</pre></td>
+                        <td scope="row"><pre>[[ b[4] ]]</pre></td>
+                        <td scope="row"><button @click="axiosSELECT3( b[0] )">更新</button></td>
+                        <td scope="row"><button @click="axiosDELETE( b[0] )">削除</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -333,8 +335,8 @@
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="classification">
         <section>
-            <h3>種別の編集</h3>
-            <table class="table table-striped">
+            <h3 @click="FC">種別一覧</h3>
+            <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -365,7 +367,6 @@
                     </tr>
                 </tbody>
             </table>
-            <hr>
             <a>
                 表示数：
                 <select>

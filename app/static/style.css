@@ -1,6 +1,7 @@
 body {
     font-family: "Yu Mincho";
     overflow-y: scroll;
+    user-select: none;
 }
 pre{
     font-family: "Yu Mincho";

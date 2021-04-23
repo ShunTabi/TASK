@@ -31,6 +31,7 @@ const router = new VueRouter({
                         data: "",
                         ONOFF: true,
                         Id: 0,
+                        FORM: false,
                     }
                 },
                 methods: {
@@ -113,10 +114,10 @@ const router = new VueRouter({
                                 alert(res);
                             });
                     },
-                    axiosDELETE:function(tg){
+                    axiosDELETE: function (tg) {
                         const params = new URLSearchParams();
-                        params.append("method","DELETE");
-                        params.append("Id",tg);
+                        params.append("method", "DELETE");
+                        params.append("Id", tg);
                         axios.post("http://localhost:8000/app/task/1", params)
                             .then(res => {
                                 this.axiosSELECT1();
@@ -124,6 +125,9 @@ const router = new VueRouter({
                             .catch(res => {
                                 alert(res);
                             });
+                    },
+                    FC: function () {
+                        this.FORM = !this.FORM;
                     }
                 },
                 created: function () {
@@ -149,6 +153,7 @@ const router = new VueRouter({
                         taskBox: [],
                         activityBox: [],
                         task2: "ALL",
+                        FORM: false,
                     }
                 },
                 methods: {
@@ -217,16 +222,21 @@ const router = new VueRouter({
                         axios.post("http://localhost:8000/app/activity/UPDATE/1", params)
                             .then(res => {
                                 test();
+                                this.task1 = "選択してください";
+                                this.today = "";
+                                this.next = "";
+                                this.date = getTime();
+                                this.ONOFF = true;
                                 this.axiosSELECT1();
                             })
                             .catch(res => {
                                 alert(res);
                             });
                     },
-                    axiosDELETE:function(tg){
+                    axiosDELETE: function (tg) {
                         const params = new URLSearchParams();
-                        params.append("method","DELETE");
-                        params.append("Id",tg);
+                        params.append("method", "DELETE");
+                        params.append("Id", tg);
                         axios.post("http://localhost:8000/app/activity/DELETE/1", params)
                             .then(res => {
                                 this.axiosSELECT1();
@@ -234,6 +244,9 @@ const router = new VueRouter({
                             .catch(res => {
                                 alert(res);
                             });
+                    },
+                    FC: function () {
+                        this.FORM = !this.FORM;
                     }
                 },
                 created: function () {
@@ -255,11 +268,15 @@ const router = new VueRouter({
                         today: "",
                         next: "",
                         date: "",
+                        ONOFF: true,
+                        FORM: false,
                     }
                 },
                 methods: {
-                    axiosSELECT2: function () {
-                        axios.post(`http://localhost:8000/app/activitySELECT2/${this.$route.params.key}`)
+                    axiosSELECT1: function () {
+                        const params = new URLSearchParams();
+                        params.append("method", "SELECT1");
+                        axios.post(`http://localhost:8000/app/activity/${this.$route.params.key}/1`, params)//task//num
                             .then(res => {
                                 this.activityBox = res.data.box;
                                 console.log(this.activityBox);
@@ -268,36 +285,78 @@ const router = new VueRouter({
                                 console.log(res);
                             });
                     },
+                    axiosSELECT3: function (tg) {
+                        this.Id = tg;
+                        const params = new URLSearchParams();
+                        params.append("method", "SELECT3");
+                        axios.post(`http://localhost:8000/app/activity/SELECT/${tg}`, params)
+                            .then(res => {
+                                this.task1 = res.data.box[0][0]
+                                this.today = res.data.box[0][1]
+                                this.next = res.data.box[0][2]
+                                this.date = res.data.box[0][3]
+                                this.ONOFF = false
+                            })
+                            .catch(res => {
+                                alert(res)
+                            });
+                    },
                     axiosINSERT: function () {
                         const params = new URLSearchParams();
+                        params.append("method", "INSERT");
+                        params.append("task", this.task);
                         params.append("today", this.today);
                         params.append("next", this.next);
                         params.append("date", this.date);
-                        axios.post(`http://localhost:8000/app/activityINSERT/${this.$route.params.key}`, params)
+                        axios.post("http://localhost:8000/app/activity/INSERT/1", params)
                             .then(res => {
                                 test();
-                                this.axiosSELECT2();
+                                this.axiosSELECT1();
                             })
                             .catch(res => {
                                 alert(res);
                             });
                     },
-                    axiosDELETE:function(tg){
+                    axiosUPDATE: function () {
                         const params = new URLSearchParams();
-                        params.append("method","DELETE");
-                        params.append("Id",tg);
-                        axios.post("http://localhost:8000/app/task/1", params)
+                        params.append("method", "UPDATE");
+                        params.append("Id", this.Id);
+                        params.append("task", this.task1);
+                        params.append("today", this.today);
+                        params.append("next", this.next);
+                        params.append("date", this.date);
+                        axios.post("http://localhost:8000/app/activity/UPDATE/1", params)
+                            .then(res => {
+                                test();
+                                this.today = "";
+                                this.next = "";
+                                this.date = getTime();
+                                this.ONOFF = true;
+                                this.axiosSELECT1();
+                            })
+                            .catch(res => {
+                                alert(res);
+                            });
+                    },
+                    axiosDELETE: function (tg) {
+                        const params = new URLSearchParams();
+                        params.append("method", "DELETE");
+                        params.append("Id", tg);
+                        axios.post("http://localhost:8000/app/activity/DELETE/1", params)
                             .then(res => {
                                 this.axiosSELECT1();
                             })
                             .catch(res => {
                                 alert(res);
                             });
+                    },
+                    FC: function () {
+                        this.FORM = !this.FORM;
                     }
                 },
                 created: function () {
                     this.task = this.$route.params.key;
-                    this.axiosSELECT2();
+                    this.axiosSELECT1();
                     this.date = getTime();
                 }
             }
@@ -314,6 +373,7 @@ const router = new VueRouter({
                         box: [],
                         ONOFF: true,
                         Id: 0,
+                        FORM: false,
                     }
                 },
                 methods: {
@@ -372,10 +432,10 @@ const router = new VueRouter({
                             })
                             .catch(function (error) { alert(error) });
                     },
-                    axiosDELETE:function(tg){
+                    axiosDELETE: function (tg) {
                         const params = new URLSearchParams();
-                        params.append("method","DELETE");
-                        params.append("Id",tg);
+                        params.append("method", "DELETE");
+                        params.append("Id", tg);
                         axios.post("http://localhost:8000/app/classification/1", params)
                             .then(res => {
                                 this.axiosSELECT1();
@@ -383,6 +443,9 @@ const router = new VueRouter({
                             .catch(res => {
                                 alert(res);
                             });
+                    },
+                    FC: function () {
+                        this.FORM = !this.FORM;
                     }
                 },
                 created: function () {
