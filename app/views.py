@@ -92,60 +92,7 @@ def index(request):
     return render(request, "index.html")
 
 
-def classification(request, num):
-    method = request.POST["method"]
-    params = {}
-    conn = sql3.connect(dbname)
-    cur = conn.cursor()
-    if(method == "SELECT1"):
-        sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT 10"
-        box = []
-        for i in cur.execute(sql):
-            box.append([i[0], i[1], dt.strptime(
-                i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
-        params = {
-            "box": box,
-        }
-    elif(method == "INSERT" or method == "UPDATE"):
-        genre = request.POST["genre"]
-        date = dt.strptime(request.POST["date"], '%Y-%m-%d')
-        if(method == "INSERT"):
-            sql = "INSERT INTO Genre(genre,date,totalNumberOfActivity) VALUES(?,?,?)"
-            cur.execute(sql, (genre, date, 0))
-            print("★★★")
-            print(request.POST)
-            print("A")
-        elif(method == "UPDATE"):
-            Id = request.POST["Id"]
-            sql = "UPDATE Genre SET genre=?,date=?,totalNumberOfActivity=? WHERE id=?"
-            cur.execute(sql, (genre, date, 0, Id))
-            print("★★★")
-            print(request.POST)
-            print("B")
-        conn.commit()
-    elif(method == "SELECT2"):
-        Id = request.POST["Id"]
-        sql = "SELECT genre,date FROM Genre WHERE id = ?"
-        box = []
-        for i in cur.execute(sql, (Id,)):
-            box.append(
-                [i[0], dt.strptime(i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
-        params = {
-            "box": box,
-        }
-        print("C")
-    elif(method == "DELECT"):
-        return ""
-    cur.close()
-    conn.close()
-    return JsonResponse(params)
-
-
-def classificationDelete(request):
-    return ""
-
-
-def classificationNameSelect(request):
+def classificationNameSELECT(request):
     if(request.method == "POST"):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
@@ -160,68 +107,114 @@ def classificationNameSelect(request):
     return HttpResponse(msg)
 
 
-def taskInsert(request):
+def classification(request, num):
+    params = {}
     if(request.method == "POST"):
-        task = request.POST["task"]
-        date = dt.strptime(request.POST["date"], '%Y-%m-%d')
-        genre = sqlGenre(request.POST["genre"])
-        prior = priorChange(request.POST["prior"])
+        method = request.POST["method"]
         conn = sql3.connect(dbname)
         cur = conn.cursor()
-        print(genre)
-        sql = "INSERT INTO Task(task,prior,totalNumberOfActivity,genre_id,date) VALUES(?,?,?,?,?)"
-        cur.execute(sql, (task, prior, 0, genre, date))
-        conn.commit()
-        params = {
-            "": "",
-        }
-        cur.close()
-        conn.close()
-        return JsonResponse(params)
-    return HttpResponse(msg)
-
-
-def taskSelect(request, num):
-    if(request.method == "POST"):
-        conn = sql3.connect(dbname)
-        cur = conn.cursor()
-        sql = "SELECT Task.id,Task.task,Task.prior,Task.totalNumberOfActivity,Genre.genre,Task.date \
-            FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY prior LIMIT 10"
-        box = []
-        for i in cur.execute(sql):
-            box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
-                i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
-        params = {
-            "box": box,
-        }
-        cur.close()
-        conn.close()
-        return JsonResponse(params)
-    return HttpResponse(msg)
-
-
-def activityInsert(request, txt):
-    if(request.method == "POST"):
-        today = request.POST["today"]
-        Next = request.POST["next"]
-        date = dt.strptime(request.POST["date"], '%Y-%m-%d')
-        conn = sql3.connect(dbname)
-        cur = conn.cursor()
-        sql = "SELECT id FROM Task WHERE task = ?"
-        cur.execute(sql, (txt,))
-        task_id = cur.fetchall()[0][0]
-        sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
-        cur.execute(sql, (task_id, today, Next, date))
-        conn.commit()
-        params = {
-            "": "",
-        }
+        if(method == "SELECT1"):
+            lim = request.POST["lim"]
+            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT ?"
+            box = []
+            for i in cur.execute(sql, (lim,)):
+                box.append([i[0], i[1], dt.strptime(
+                    i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
+            params = {
+                "box": box,
+            }
+        elif(method == "SELECT2"):
+            Id = request.POST["Id"]
+            sql = "SELECT genre,date FROM Genre WHERE id = ?"
+            box = []
+            for i in cur.execute(sql, (Id,)):
+                box.append(
+                    [i[0], dt.strptime(i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+            params = {
+                "box": box,
+            }
+            print("C")
+        elif(method == "INSERT" or method == "UPDATE"):
+            genre = request.POST["genre"]
+            date = dt.strptime(request.POST["date"], '%Y-%m-%d')
+            if(method == "INSERT"):
+                sql = "INSERT INTO Genre(genre,date,totalNumberOfActivity) VALUES(?,?,?)"
+                cur.execute(sql, (genre, date, 0))
+            elif(method == "UPDATE"):
+                Id = request.POST["Id"]
+                sql = "UPDATE Genre SET genre=?,date=?,totalNumberOfActivity=? WHERE id=?"
+                cur.execute(sql, (genre, date, 0, Id))
+            conn.commit()
+        elif(method == "DELETE"):
+            Id = request.POST["Id"]
+            sql = "DELETE FROM Genre WHERE id = ?"
+            cur.execute("PRAGMA foreign_keys=true")
+            cur.execute(sql, (Id,))
+            conn.commit()
         cur.close()
         conn.close()
     return JsonResponse(params)
 
 
-def taskNameSelect2(request):
+def task(request, num):
+    params = {}
+    if(request.method == "POST"):
+        box = []
+        method = request.POST["method"]
+        conn = sql3.connect(dbname)
+        cur = conn.cursor()
+        if(method == "SELECT1"):
+            lim = request.POST["lim"]
+            sql = "SELECT Task.id,Task.task,Task.prior,Task.totalNumberOfActivity,Genre.genre,Task.date \
+                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT ?"
+            for i in cur.execute(sql, (lim,)):
+                box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
+                    i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+            params = {
+                "box": box,
+            }
+        elif(method == "SELECT2"):
+            sql = "SELECT genre FROM Genre"
+            for i in cur.execute(sql):
+                box.append([i[0]])
+            params = {
+                "box": box,
+            }
+        elif(method == "SELECT3"):
+            Id = request.POST["Id"]
+            sql = "SELECT Task.task,Task.prior,Genre.genre,Task.date FROM Task INNER JOIN Genre ON Genre.id = Task.genre_id WHERE Task.id = ?"
+            for i in cur.execute(sql, (Id,)):
+                box.append(
+                    [i[0], priorChange(i[1]), i[2], dt.strptime(i[3], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+            params = {
+                "box": box,
+            }
+        elif(method == "INSERT" or method == "UPDATE"):
+            task = request.POST["task"]
+            prior = priorChange(request.POST["prior"])
+            genre_id = sqlGenre(request.POST["genre"])
+            date = dt.strptime(request.POST["date"], '%Y-%m-%d')
+            if(method == "INSERT"):
+                sql = "INSERT INTO Task(task,prior,totalNumberOfActivity,genre_id,date) VALUES(?,?,?,?,?)"
+                cur.execute(sql, (task, prior, 0, genre_id, date))
+            elif(method == "UPDATE"):
+                Id = request.POST["Id"]
+                sql = "UPDATE Task SET task=?,prior=?,totalNumberOfActivity=?,genre_id=?,date=? WHERE id=?"
+                cur.execute(sql, (task, prior, 0, genre_id, date, Id))
+            conn.commit()
+        elif(method == "DELETE"):
+            Id = request.POST["Id"]
+            sql = "DELETE FROM Task WHERE id = ?"
+            cur.execute("PRAGMA foreign_keys=true")
+            cur.execute("PRAGMA foreign_keys=true")
+            cur.execute(sql, (Id,))
+            conn.commit()
+        cur.close()
+        conn.close()
+    return JsonResponse(params)
+
+
+def taskNameSELECT2(request):
     conn = sql3.connect(dbname)
     cur = conn.cursor()
     sql = "SELECT task FROM Task"
@@ -234,43 +227,68 @@ def taskNameSelect2(request):
     return JsonResponse(params)
 
 
-def activitySelect1(request):
-    conn = sql3.connect(dbname)
-    cur = conn.cursor()
-    sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id"
-    cur.execute(sql)
-    box = []
-    for i in cur.execute(sql):
-        box.append([i[0], dt.strptime(
-            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
-    params = {
-        "box": box,
-    }
-    cur.close()
-    conn.close()
-    return JsonResponse(params)
+def activity(request, txt, num):
+    params = {}
+    if(request.method == "POST"):
+        box = []
+        method = request.POST["method"]
+        conn = sql3.connect(dbname)
+        cur = conn.cursor()
+        if(method == "SELECT1"):
+            lim = request.POST["lim"]
+            task = txt
+            if(task == "ALL"):
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC LIMIT ?"
+                output = cur.execute(sql, (lim,))
+            else:
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC LIMIT ?"
+                output = cur.execute(sql, (task, lim))
+            for i in output:
+                box.append([i[0], dt.strptime(
+                    i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
+            params = {
+                "box": box,
+            }
+        elif(method == "SELECT2"):
+            sql = "SELECT task FROM Task"
+            for i in cur.execute(sql):
+                box.append(i)
+            params = {
+                "box": box,
+            }
+        elif(method == "SELECT3"):
+            Id = num
+            sql = "SELECT Task.task,Activity.today,Activity.next,Activity.date FROM Activity INNER JOIN Task ON Task.id = Activity.task_id WHERE Activity.id=?"
+            for i in cur.execute(sql, (Id,)):
+                box.append([i[0], i[1], i[2], dt.strptime(
+                    i[3], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+            params = {
+                "box": box,
+            }
+            print(params)
+        elif(method == "INSERT" or method == "UPDATE"):
+            today = request.POST["today"]
+            Next = request.POST["next"]
+            date = dt.strptime(request.POST["date"], '%Y-%m-%d')
+            sql = "SELECT id FROM Task WHERE task = ?"
+            cur.execute(sql, (request.POST["task"],))
+            task_id = cur.fetchall()[0][0]
+            print(task_id)
+            if(method == "INSERT"):
+                sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
+                cur.execute(sql, (task_id, today, Next, date))
+            elif(method == "UPDATE"):
+                Id = request.POST["Id"]
+                sql = "UPDATE Activity SET task_id=?,today=?,next=?,date=? WHERE id=?"
+                cur.execute(sql, (task_id, today, Next, date, Id))
+            conn.commit()
+        elif(method == "DELETE"):
+            Id = request.POST["Id"]
+            sql = "DELETE FROM Activity WHERE id = ?"
+            cur.execute("PRAGMA foreign_keys=true")
+            cur.execute(sql, (Id,))
+            conn.commit()
+        cur.close()
+        conn.close()
 
-
-def activitySelect2(request, txt):
-    conn = sql3.connect(dbname)
-    cur = conn.cursor()
-    output = []
-    if(txt == "ALL"):
-        sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC"
-        output = cur.execute(sql)
-    else:
-        sql = "SELECT id FROM Task WHERE task = ?"
-        cur.execute(sql, (txt,))
-        task_id = cur.fetchall()[0][0]
-        sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE task_id = ? ORDER BY Activity.date DESC"
-        output = cur.execute(sql, (task_id,))
-    box = []
-    for i in output:
-        box.append([i[0], dt.strptime(
-            i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
-    params = {
-        "box": box,
-    }
-    cur.close()
-    conn.close()
     return JsonResponse(params)
