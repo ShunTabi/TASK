@@ -114,9 +114,10 @@ def classification(request, num):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
         if(method == "SELECT1"):
-            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT 10"
+            lim = request.POST["lim"]
+            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT ?"
             box = []
-            for i in cur.execute(sql):
+            for i in cur.execute(sql, (lim,)):
                 box.append([i[0], i[1], dt.strptime(
                     i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
             params = {
@@ -163,9 +164,10 @@ def task(request, num):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
         if(method == "SELECT1"):
+            lim = request.POST["lim"]
             sql = "SELECT Task.id,Task.task,Task.prior,Task.totalNumberOfActivity,Genre.genre,Task.date \
-                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT 10"
-            for i in cur.execute(sql):
+                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT ?"
+            for i in cur.execute(sql, (lim,)):
                 box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
                     i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
             params = {
@@ -233,13 +235,14 @@ def activity(request, txt, num):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
         if(method == "SELECT1"):
+            lim = request.POST["lim"]
             task = txt
             if(task == "ALL"):
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC"
-                output = cur.execute(sql)
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC LIMIT ?"
+                output = cur.execute(sql, (lim,))
             else:
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC"
-                output = cur.execute(sql, (task,))
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC LIMIT ?"
+                output = cur.execute(sql, (task, lim))
             for i in output:
                 box.append([i[0], dt.strptime(
                     i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])

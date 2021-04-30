@@ -36,7 +36,7 @@
         <hr>
         <router-view></router-view>
     </div>
-    <!--111111111111111111111111111111111111111111111-->
+    <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="task">
         <section>
             <h3 @click="FC">タスク一覧</h3>
@@ -96,22 +96,14 @@
             </table>
             <a>
                 優先度:
-                <select>
-                    <option>ALL</option>
-                    <option>★</option>
-                    <option>●</option>
-                    <option>▲</option>
-                    <option>済</option>
+                <select v-model="prior1">
+                    <option v-for="m in ['ALL','★','●','▲','済']">[[ m ]]</option>
                 </SELECT>
             </a> |
             <a>
                 表示数：
-                <select>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
+                <select v-model="lim" @change="axiosSELECT1">
+                    <option v-for="l in limBox">[[ l ]]</option>
                 </SELECT>
             </a>
             <table class="table table-striped">
@@ -207,12 +199,8 @@
             </a> |
             <a>
                 表示数：
-                <select>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
+                <select v-model="lim" @change="axiosSELECT1">
+                    <option v-for="l in limBox">[[ l ]]</option>
                 </SELECT>
             </a>
             <table class="table table-striped">
@@ -295,12 +283,8 @@
             </table>
             <a>
                 表示数：
-                <select>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
+                <select v-model="lim" @change="axiosSELECT1">
+                    <option v-for="l in limBox">[[ l ]]</option>
                 </SELECT>
             </a>
             <table class="table table-striped">
@@ -369,12 +353,8 @@
             </table>
             <a>
                 表示数：
-                <select>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
+                <select v-model="lim" @change="axiosSELECT1">
+                    <option v-for="l in limBox">[[ l ]]</option>
                 </SELECT>
             </a>
             <table class="table table-striped">

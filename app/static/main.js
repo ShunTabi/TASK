@@ -8,6 +8,7 @@ function getTime() {
     const date = `${y}-${m}-${d}`;
     return date;
 }
+const LimBox = [3, 5, 10, 20];
 const msg = "成功しました"
 function test1(tg) {
     // alert(tg);
@@ -23,7 +24,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 const router = new VueRouter({
     routes: [
         {
-            path: "/task",
+            path: "/task/",
             component: {
                 template: "#task",
                 delimiters: ["[[", "]]"],
@@ -38,12 +39,16 @@ const router = new VueRouter({
                         ONOFF: true,
                         Id: 0,
                         FORM: false,
+                        limBox: LimBox,
+                        lim: LimBox[1],
+                        prior1: "ALL",
                     }
                 },
                 methods: {
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
+                        params.append("lim", this.lim);
                         axios.post("http://localhost:8000/app/task/1", params)
                             .then(res => {
                                 this.box = res.data.box
@@ -159,12 +164,16 @@ const router = new VueRouter({
                         activityBox: [],
                         task2: "ALL",
                         FORM: false,
+                        limBox: LimBox,
+                        lim: LimBox[1],
+                        task2: "ALL",
                     }
                 },
                 methods: {
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
+                        params.append("lim", this.lim);
                         axios.post(`http://localhost:8000/app/activity/${this.task2}/1`, params)//task//num
                             .then(res => {
                                 this.activityBox = res.data.box;
@@ -275,12 +284,15 @@ const router = new VueRouter({
                         date: "",
                         ONOFF: true,
                         FORM: false,
+                        limBox: LimBox,
+                        lim: LimBox[1],
                     }
                 },
                 methods: {
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
+                        params.append("lim", this.lim);
                         axios.post(`http://localhost:8000/app/activity/${this.$route.params.key}/1`, params)//task//num
                             .then(res => {
                                 this.activityBox = res.data.box;
@@ -379,12 +391,15 @@ const router = new VueRouter({
                         ONOFF: true,
                         Id: 0,
                         FORM: false,
+                        limBox: LimBox,
+                        lim: LimBox[1],
                     }
                 },
                 methods: {
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
+                        params.append("lim", this.lim);
                         axios.post("http://localhost:8000/app/classification/1", params)
                             .then(res => {
                                 // console.log(res.data.box);
@@ -448,7 +463,7 @@ const router = new VueRouter({
                                 this.axiosSELECT1();
                             })
                             .catch(res => {
-                                test2(res);F
+                                test2(res); F
                             });
                     },
                     FC: function () {
