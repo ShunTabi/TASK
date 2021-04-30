@@ -8,7 +8,7 @@ function getTime() {
     const date = `${y}-${m}-${d}`;
     return date;
 }
-const LimBox = [3, 5, 10, 20];
+const LimBox = [3,1, 5, 10, 20];
 const msg = "成功しました"
 function test1(tg) {
     // alert(tg);
@@ -24,7 +24,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 const router = new VueRouter({
     routes: [
         {
-            path: "/task/",
+            path: "/task/:page",
             component: {
                 template: "#task",
                 delimiters: ["[[", "]]"],
@@ -40,8 +40,9 @@ const router = new VueRouter({
                         Id: 0,
                         FORM: false,
                         limBox: LimBox,
-                        lim: LimBox[1],
+                        lim: 5,//LimBox[1],
                         prior1: "ALL",
+                        mx: 1,
                     }
                 },
                 methods: {
@@ -49,9 +50,10 @@ const router = new VueRouter({
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
                         params.append("lim", this.lim);
-                        axios.post("http://localhost:8000/app/task/1", params)
+                        axios.post(`http://localhost:8000/app/task/${this.$route.params.page}`, params)
                             .then(res => {
-                                this.box = res.data.box
+                                this.box = res.data.box;
+                                this.mx = Math.floor(res.data.mx / this.lim);
                             })
                             .catch(res => {
                                 test1(res);
@@ -148,7 +150,7 @@ const router = new VueRouter({
             }
         },
         {
-            path: "/activity",
+            path: "/activity/:page",
             component: {
                 template: "#activity1",
                 delimiters: ["[[", "]]"],
@@ -167,6 +169,7 @@ const router = new VueRouter({
                         limBox: LimBox,
                         lim: LimBox[1],
                         task2: "ALL",
+                        mx: 1,
                     }
                 },
                 methods: {
@@ -174,9 +177,10 @@ const router = new VueRouter({
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
                         params.append("lim", this.lim);
-                        axios.post(`http://localhost:8000/app/activity/${this.task2}/1`, params)//task//num
+                        axios.post(`http://localhost:8000/app/activity/${this.task2}/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.activityBox = res.data.box;
+                                this.mx = Math.floor(res.data.mx / this.lim);
                             })
                             .catch(res => {
                                 test2(res);
@@ -271,7 +275,7 @@ const router = new VueRouter({
             },
         },
         {
-            path: "/activity/:key",
+            path: "/activity/:key/:page",
             component: {
                 template: "#activity2",
                 delimiters: ["[[", "]]"],
@@ -286,6 +290,7 @@ const router = new VueRouter({
                         FORM: false,
                         limBox: LimBox,
                         lim: LimBox[1],
+                        mx: 1,
                     }
                 },
                 methods: {
@@ -293,10 +298,10 @@ const router = new VueRouter({
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
                         params.append("lim", this.lim);
-                        axios.post(`http://localhost:8000/app/activity/${this.$route.params.key}/1`, params)//task//num
+                        axios.post(`http://localhost:8000/app/activity/${this.$route.params.key}/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.activityBox = res.data.box;
-                                console.log(this.activityBox);
+                                this.mx = Math.floor(res.data.mx / this.lim);
                             })
                             .catch(res => {
                                 test2(res);
@@ -379,7 +384,7 @@ const router = new VueRouter({
             }
         },
         {
-            path: "/classification",
+            path: "/classification/:page",
             component: {
                 template: "#classification",
                 delimiters: ["[[", "]]"],
@@ -393,6 +398,7 @@ const router = new VueRouter({
                         FORM: false,
                         limBox: LimBox,
                         lim: LimBox[1],
+                        mx:1,
                     }
                 },
                 methods: {
@@ -400,10 +406,10 @@ const router = new VueRouter({
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
                         params.append("lim", this.lim);
-                        axios.post("http://localhost:8000/app/classification/1", params)
+                        axios.post(`http://localhost:8000/app/classification/${this.$route.params.page}`, params)
                             .then(res => {
-                                // console.log(res.data.box);
                                 this.box = res.data.box;
+                                this.mx = Math.floor(res.data.mx / this.lim);
                             })
                             .catch(res => {
                                 test2(res);
@@ -416,7 +422,6 @@ const router = new VueRouter({
                         params.append("method", "SELECT2")
                         axios.post("http://localhost:8000/app/classification/1", params)
                             .then(res => {
-                                // console.log(res.data);
                                 this.ONOFF = false;
                                 this.genre = res.data.box[0][0];
                                 this.date = res.data.box[0][1];

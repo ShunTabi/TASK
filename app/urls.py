@@ -19,9 +19,9 @@ from . import views
 
 urlpatterns = [
     path("", views.index),
-    path("classification/<int:num>", views.classification),
+    path("classification/<int:page>", views.classification),
     path("classificationNameSELECT", views.classificationNameSELECT),
-    path("task/<int:num>", views.task),
+    path("task/<int:page>", views.task),
     path("taskNameSELECT2", views.taskNameSELECT2),
-    path("activity/<str:txt>/<int:num>", views.activity),
+    path("activity/<str:txt>/<int:page>", views.activity),
 ]

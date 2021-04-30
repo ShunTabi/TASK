@@ -107,7 +107,7 @@ def classificationNameSELECT(request):
     return HttpResponse(msg)
 
 
-def classification(request, num):
+def classification(request, page):
     params = {}
     if(request.method == "POST"):
         method = request.POST["method"]
@@ -115,13 +115,17 @@ def classification(request, num):
         cur = conn.cursor()
         if(method == "SELECT1"):
             lim = request.POST["lim"]
-            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT ?"
+            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT ? OFFSET ?"
             box = []
-            for i in cur.execute(sql, (lim,)):
+            for i in cur.execute(sql, (lim, (page-1)*int(lim))):
                 box.append([i[0], i[1], dt.strptime(
                     i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
-            params = {
+            sql="SELECT count(*) FROM Genre"
+            cur.execute(sql)
+            mx=cur.fetchall()[0][0]
+            params={
                 "box": box,
+                "mx": mx,
             }
         elif(method == "SELECT2"):
             Id = request.POST["Id"]
@@ -130,7 +134,7 @@ def classification(request, num):
             for i in cur.execute(sql, (Id,)):
                 box.append(
                     [i[0], dt.strptime(i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
-            params = {
+            params={
                 "box": box,
             }
             print("C")
@@ -156,7 +160,7 @@ def classification(request, num):
     return JsonResponse(params)
 
 
-def task(request, num):
+def task(request, page):
     params = {}
     if(request.method == "POST"):
         box = []
@@ -166,12 +170,16 @@ def task(request, num):
         if(method == "SELECT1"):
             lim = request.POST["lim"]
             sql = "SELECT Task.id,Task.task,Task.prior,Task.totalNumberOfActivity,Genre.genre,Task.date \
-                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT ?"
-            for i in cur.execute(sql, (lim,)):
+                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT ? OFFSET ?"
+            for i in cur.execute(sql, (lim, (page-1)*int(lim))):
                 box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
                     i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
+            sql = "SELECT count(*) FROM task"
+            cur.execute(sql)
+            mx = cur.fetchall()[0][0]
             params = {
                 "box": box,
+                "mx": mx,
             }
         elif(method == "SELECT2"):
             sql = "SELECT genre FROM Genre"
@@ -227,7 +235,7 @@ def taskNameSELECT2(request):
     return JsonResponse(params)
 
 
-def activity(request, txt, num):
+def activity(request, txt, page):
     params = {}
     if(request.method == "POST"):
         box = []
@@ -238,16 +246,23 @@ def activity(request, txt, num):
             lim = request.POST["lim"]
             task = txt
             if(task == "ALL"):
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC LIMIT ?"
-                output = cur.execute(sql, (lim,))
+                sql = "SELECT count(*) FROM Activity"
+                cur.execute(sql)
+                mx = cur.fetchall()[0]
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC LIMIT ? OFFSET ?"
+                output = cur.execute(sql, (lim, (page-1)*int(lim)))
             else:
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC LIMIT ?"
-                output = cur.execute(sql, (task, lim))
+                sql = "SELECT count(*) FROM Activity INNER JOIN Task On Task.id = Activity.task_id WHERE Task.task = ?"
+                cur.execute(sql, (txt,))
+                mx = cur.fetchall()[0]
+                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC LIMIT ? OFFSET ?"
+                output = cur.execute(sql, (task, lim, (page-1)*int(lim)))
             for i in output:
                 box.append([i[0], dt.strptime(
                     i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[2], i[3], i[4]])
             params = {
                 "box": box,
+                "mx": mx,
             }
         elif(method == "SELECT2"):
             sql = "SELECT task FROM Task"
@@ -257,7 +272,7 @@ def activity(request, txt, num):
                 "box": box,
             }
         elif(method == "SELECT3"):
-            Id = num
+            Id = page
             sql = "SELECT Task.task,Activity.today,Activity.next,Activity.date FROM Activity INNER JOIN Task ON Task.id = Activity.task_id WHERE Activity.id=?"
             for i in cur.execute(sql, (Id,)):
                 box.append([i[0], i[1], i[2], dt.strptime(
@@ -265,7 +280,6 @@ def activity(request, txt, num):
             params = {
                 "box": box,
             }
-            print(params)
         elif(method == "INSERT" or method == "UPDATE"):
             today = request.POST["today"]
             Next = request.POST["next"]
@@ -273,7 +287,6 @@ def activity(request, txt, num):
             sql = "SELECT id FROM Task WHERE task = ?"
             cur.execute(sql, (request.POST["task"],))
             task_id = cur.fetchall()[0][0]
-            print(task_id)
             if(method == "INSERT"):
                 sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
                 cur.execute(sql, (task_id, today, Next, date))
@@ -290,5 +303,4 @@ def activity(request, txt, num):
             conn.commit()
         cur.close()
         conn.close()
-
     return JsonResponse(params)

@@ -28,9 +28,9 @@
 
 <body class="container">
     <div id="app">
-        <router-link to="/task">タスク一覧</router-link> |
-        <router-link to="/activity">活動の履歴</router-link> |
-        <router-link to="/classification">種別一覧</router-link> |
+        <router-link to="/task/1">タスク一覧</router-link> |
+        <router-link to="/activity/1">活動の履歴</router-link> |
+        <router-link to="/classification/1">種別一覧</router-link> |
         <router-link to="/top">グラフ表示</router-link> |
         <router-link to="/error">エラー表示</router-link>
         <hr>
@@ -43,33 +43,25 @@
             <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
-                        <th scope="col">項</th>
-                        <th scope="col">項目</th>
-                        <th scope="col">内容</th>
+                        <th scope="col" v-for="i in ['項','項目','内容']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td scope="row">1</td>
-                        <td scope="row">タスク</td>
+                        <td scope="row" v-for="i in [1,'タスク']">[[ i ]]</td>
                         <td scope="row"><input v-model="task" type="text"></td>
                     </tr>
                     <tr>
-                        <td scope="row">2</td>
-                        <td scope="row">優先度</td>
+                        <td scope="row" v-for="i in [2,'優先度']">[[ i ]]</td>
                         <td scope="row">
                             <select v-model="prior">
                                 <option disabled selected>選択してください</option>
-                                <option>高い</option>
-                                <option>普通</option>
-                                <option>低い</option>
-                                <option>済み</option>
+                                <option v-for="i in ['高い','普通','低い','済み']">[[ i ]]</option>
                             </SELECT>
                         </td>
                     </tr>
                     <tr>
-                        <td scope="row">3</td>
-                        <td scope="row">種別</td>
+                        <td scope="row" v-for="i in [3,'種別']">[[ i ]]</td>
                         <td scope="row">
                             <select v-model="genre">
                                 <option disabled selected>選択してください</option>
@@ -78,18 +70,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <td scope="row">4</td>
-                        <td scope="row">日付</td>
+                        <td scope="row" v-for="i in [4,'日付']">[[ i ]]</td>
                         <td scope="row"><input v-model="date" type="text"></td>
                     </tr>
                     <tr v-if="ONOFF">
-                        <td scope="row"></td>
-                        <td scope="row"></td>
+                        <td scope="row" v-for="i in ['','']"></td>
                         <td scope="row"><button @click="axiosINSERT">登録</button></td>
                     </tr>
                     <tr v-else>
-                        <td scope="row"></td>
-                        <td scope="row"></td>
+                        <td scope="row" v-for="i in ['','']"></td>
                         <td scope="row"><button @click="axiosUPDATE">更新</button></td>
                     </tr>
                 </tbody>
@@ -99,32 +88,20 @@
                 <select v-model="prior1">
                     <option v-for="m in ['ALL','★','●','▲','済']">[[ m ]]</option>
                 </SELECT>
-            </a> |
-            <a>
-                表示数：
-                <select v-model="lim" @change="axiosSELECT1">
-                    <option v-for="l in limBox">[[ l ]]</option>
-                </SELECT>
             </a>
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col">タスク</th>
-                        <th scope="col">優先度</th>
-                        <th scope="col">活動数</th>
-                        <th scope="col">種別</th>
-                        <th scope="col">更新</th>
-                        <th scope="col">削除</th>
-                        <th scope="col">更新日</th>
+                        <th scope="col" v-for="i in ['タスク','優先度','活動数','種別','更新','削除','更新日']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="b,index in box">
-                        <td scope="row">[[index+1]]</td>
+                        <td scope="row">[[ index+1 ]]</td>
                         <td scope="row" class="collapse">[[ b[0] ]]</td>
-                        <td scope="row"><router-link :to="`/activity/${b[1]}`">[[ b[1] ]]</router-link></td>
+                        <td scope="row"><router-link :to="`/activity/${b[1]}/1`">[[ b[1] ]]</router-link></td>
                         <td scope="row" v-if="b[2] == 1">　★</td>
                         <td scope="row" v-else-if="b[2] == 2">　●</td>
                         <td scope="row" v-else-if="b[2] == 3">　▲</td>
@@ -137,7 +114,7 @@
                     </tr>
                 </tbody>
             </table>
-            <p>1/1</p>
+            <p>[[ this.$route.params.page ]]/[[ mx ]]</p>
         </section>
     </script>
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
@@ -229,7 +206,7 @@
                     </tr>
                 </tbody>
             </table>
-            <p>1/1</p>
+            <p>[[ this.$route.params.page ]]/[[ mx ]]</p>
         </section>
     </script>
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
@@ -313,7 +290,7 @@
                     </tr>
                 </tbody>
             </table>
-            <p>1/1</p>
+            <p>[[ this.$route.params.page ]]/[[ mx ]]</p>
         </section>
     </script>
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
@@ -379,7 +356,7 @@
                     </tr>
                 </tbody>
             </table>
-            <p>1/1</p>
+            <p>[[ this.$route.params.page ]]/[[ mx ]]</p>
         </section>
     </script>
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
