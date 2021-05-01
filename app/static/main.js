@@ -8,7 +8,7 @@ function getTime() {
     const date = `${y}-${m}-${d}`;
     return date;
 }
-const LimBox = [3,1, 5, 10, 20];
+const LimBox = [5, 10, 20];
 const msg = "成功しました"
 function test1(tg) {
     // alert(tg);
@@ -40,12 +40,16 @@ const router = new VueRouter({
                         Id: 0,
                         FORM: false,
                         limBox: LimBox,
-                        lim: 5,//LimBox[1],
+                        lim: 10,//LimBox[1],
                         prior1: "ALL",
                         mx: 1,
                     }
                 },
                 methods: {
+                    PP: function (tg) {
+                        this.$router.push(`/task/${parseInt(this.$route.params.page) + tg}`);
+                        this.axiosSELECT1();
+                    },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
@@ -53,7 +57,7 @@ const router = new VueRouter({
                         axios.post(`http://localhost:8000/app/task/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.box = res.data.box;
-                                this.mx = Math.floor(res.data.mx / this.lim);
+                                this.mx = Math.floor((res.data.mx - 1) / this.lim) + 1;
                             })
                             .catch(res => {
                                 test1(res);
@@ -167,12 +171,16 @@ const router = new VueRouter({
                         task2: "ALL",
                         FORM: false,
                         limBox: LimBox,
-                        lim: LimBox[1],
+                        lim: LimBox[0],
                         task2: "ALL",
                         mx: 1,
                     }
                 },
                 methods: {
+                    PP: function (tg) {
+                        this.$router.push(`/activity/${parseInt(this.$route.params.page) + tg}`);
+                        this.axiosSELECT1();
+                    },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
@@ -180,7 +188,7 @@ const router = new VueRouter({
                         axios.post(`http://localhost:8000/app/activity/${this.task2}/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.activityBox = res.data.box;
-                                this.mx = Math.floor(res.data.mx / this.lim);
+                                this.mx = Math.floor((res.data.mx - 1) / this.lim) + 1;
                             })
                             .catch(res => {
                                 test2(res);
@@ -289,11 +297,15 @@ const router = new VueRouter({
                         ONOFF: true,
                         FORM: false,
                         limBox: LimBox,
-                        lim: LimBox[1],
+                        lim: LimBox[0],
                         mx: 1,
                     }
                 },
                 methods: {
+                    PP: function (tg) {
+                        this.$router.push(`/activity/${this.$route.params.key}/${parseInt(this.$route.params.page) + tg}`);
+                        this.axiosSELECT1();
+                    },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
@@ -301,7 +313,7 @@ const router = new VueRouter({
                         axios.post(`http://localhost:8000/app/activity/${this.$route.params.key}/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.activityBox = res.data.box;
-                                this.mx = Math.floor(res.data.mx / this.lim);
+                                this.mx = Math.floor((res.data.mx - 1) / this.lim) + 1;
                             })
                             .catch(res => {
                                 test2(res);
@@ -397,11 +409,15 @@ const router = new VueRouter({
                         Id: 0,
                         FORM: false,
                         limBox: LimBox,
-                        lim: LimBox[1],
-                        mx:1,
+                        lim: LimBox[0],
+                        mx: 1,
                     }
                 },
                 methods: {
+                    PP: function (tg) {
+                        this.$router.push(`/classification/${parseInt(this.$route.params.page) + tg}`);
+                        this.axiosSELECT1();
+                    },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
@@ -409,7 +425,7 @@ const router = new VueRouter({
                         axios.post(`http://localhost:8000/app/classification/${this.$route.params.page}`, params)
                             .then(res => {
                                 this.box = res.data.box;
-                                this.mx = Math.floor(res.data.mx / this.lim);
+                                this.mx = Math.floor((res.data.mx - 1) / this.lim) + 1;
                             })
                             .catch(res => {
                                 test2(res);
@@ -491,11 +507,11 @@ const router = new VueRouter({
             }
         },
     ]
-})
+});
 
 const app = new Vue({
     el: "#app",
     router: router,
     created: function () {
     }
-})
+});
