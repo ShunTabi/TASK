@@ -18,8 +18,8 @@ function test2(tg) {
     alert(tg);
     console.log(tg);
 }
-axios.defaults.xsrfCookieName = "csrftoken";
-axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+// axios.defaults.xsrfCookieName = "csrftoken";
+// axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 //VueRouter
 const router = new VueRouter({
     routes: [

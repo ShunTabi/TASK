@@ -60,7 +60,7 @@ def index(request):
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
                 genre TEXT NOT NULL UNIQUE,\
                     date DATETIME NOT NULL\
-                        )","\
+                        )", "\
         CREATE TABLE Task(\
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
                 task TEXT NOT NULL UNIQUE,\
@@ -68,7 +68,7 @@ def index(request):
                         genre_id INTEGER NOT NULL,\
                             date DATETIME NOT NULL,\
                                 FOREIGN KEY(genre_id) REFERENCES Genre(id) ON DELETE CASCADE\
-                                    )","\
+                                    )", "\
         CREATE TABLE Activity(\
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
                 task_id INTEGER NOT NULL,\
@@ -122,9 +122,19 @@ def classification(request, page):
                         INNER JOIN Task \
                             ON Genre.id = Task.genre_id \
                                 GROUP BY Genre.id \
-                                    ORDER BY Genre.date DESC \
-                                        LIMIT ? \
-                                            OFFSET ?"
+                UNION \
+                SELECT Genre.id,Genre.genre,Genre.date,0 \
+                    FROM Genre \
+                        WHERE Genre.id NOT IN(\
+                            SELECT Genre.id \
+                                FROM Genre \
+                                    INNER JOIN Task \
+                                        ON Genre.id = Task.genre_id \
+                                            GROUP BY Genre.id \
+                                                ) \
+                ORDER BY Genre.date DESC \
+                    LIMIT ? \
+                        OFFSET ?"
             box = []
             for i in cur.execute(sql, (lim, (page-1)*int(lim))):
                 box.append([i[0], i[1], dt.strptime(
@@ -157,7 +167,7 @@ def classification(request, page):
             date = dt.strptime(request.POST["date"], '%Y-%m-%d')
             if(method == "INSERT"):
                 sql = "\
-                    INSERT INTO Genre(genre,date) VALUES(?,?,?)"
+                    INSERT INTO Genre(genre,date) VALUES(?,?)"
                 cur.execute(sql, (genre, date))
             elif(method == "UPDATE"):
                 Id = request.POST["Id"]
@@ -165,7 +175,7 @@ def classification(request, page):
                     UPDATE Genre \
                         SET genre=?,date=?\
                             WHERE id=?"
-                cur.execute(sql, (genre, date, 0, Id))
+                cur.execute(sql, (genre, date, Id))
             conn.commit()
         elif(method == "DELETE"):
             Id = request.POST["Id"]
@@ -252,7 +262,7 @@ def task(request, page):
             date = dt.strptime(request.POST["date"], '%Y-%m-%d')
             if(method == "INSERT"):
                 sql = "\
-                    INSERT INTO Task(task,prior,genre_id,date) VALUES(?,?,?,?,?)"
+                    INSERT INTO Task(task,prior,genre_id,date) VALUES(?,?,?,?)"
                 cur.execute(sql, (task, prior, genre_id, date))
             elif(method == "UPDATE"):
                 Id = request.POST["Id"]
