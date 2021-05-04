@@ -23,18 +23,18 @@
     <link rel="stylesheet" href="{% static 'bootstrap-utilities.rtl.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-utilities.rtl.min.css' %}">
     <link rel="stylesheet" href="{% static 'style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <title>タスク管理アプリ</title>
+    <link rel="stylesheet" href="{% static 'animate.min.css' %}">
+    <title>作業管理アプリ</title>
 </head>
 
 <body class="container">
     <div id="app" class="animate__animated animate__lightSpeedInLeft">
         <nav>
-            <router-link to="/task/1">タスク一覧</router-link> |
+            <router-link to="/task/1">作業一覧</router-link> |
             <router-link to="/activity/1">活動の履歴</router-link> |
             <router-link to="/classification/1">種別一覧</router-link> |
             <router-link to="/top">グラフ表示</router-link> |
-            <router-link to="/task/1">済みタスク</router-link>
+            <router-link to="/task/1">済み作業</router-link>
         </nav>
         <hr>
         <router-view></router-view>
@@ -42,7 +42,7 @@
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="task">
         <section>
-            <h3 @click="FC">タスク一覧</h3>
+            <h3 @click="FC">作業一覧</h3>
             <table class="table table-striped" v-if="FORM">
                 <thead>
                     <tr>
@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td scope="row" v-for="i in [1,'タスク']">[[ i ]]</td>
+                        <td scope="row" v-for="i in [1,'作業']">[[ i ]]</td>
                         <td scope="row"><input v-model="task" type="text"></td>
                     </tr>
                     <tr>
@@ -109,7 +109,7 @@
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col" v-for="i in ['タスク','優先度','活動数','種別','更新','削除','日付']">[[ i ]]</th>
+                        <th scope="col" v-for="i in ['作業','優先度','活動数','種別','更新','削除','日付']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,7 +145,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td scope="row" v-for="i in [1,'タスク']">[[ i ]]</td>
+                        <td scope="row" v-for="i in [1,'作業']">[[ i ]]</td>
                         <td scope="row">
                             <select  v-model="task1">
                                 <option disabled selected>選択してください</option>
@@ -179,7 +179,7 @@
             </table>
             <nav>
                 <a>
-                    タスク：
+                    作業：
                     <select v-model="task2" @change="axiosSELECT1">
                         <option selected>ALL</option>
                         <option v-for="t in taskBox">[[ t[0] ]]</option>
@@ -207,7 +207,7 @@
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col" v-for="i in ['日付','タスク','本日','NEXT','更新','削除']">[[ i ]]</th>
+                        <th scope="col" v-for="i in ['日付','作業','本日','NEXT','更新','削除']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -237,8 +237,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td scope="row" v-for="i in [1,'タスク']">[[ i ]]</td>
-                        <td scope="row">タスク</td>
+                        <td scope="row" v-for="i in [1,'作業']">[[ i ]]</td>
                         <td scope="row">
                             <select  v-model="task">
                                 <option selected>[[ task ]]</option>
@@ -291,7 +290,7 @@
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
                         <th scope="col">日付</th>
-                        <th scope="col" class="collapse">タスク</th>
+                        <th scope="col" class="collapse">作業</th>
                         <th scope="col" v-for="i in ['本日','NEXT','更新','削除']">[[ i ]]</th>
                     </tr>
                 </thead>
@@ -373,6 +372,7 @@
                         <td scope="row">[[ b[2] ]]</td>
                         <td scope="row"><button @click="axiosSELECT2( b[0] )">更新</button></td>
                         <td scope="row"><button @click="axiosDELETE( b[0] )">削除</button></td>
+                        <td scope="row">[[ b[3] ]]</td>
                     </tr>
                 </tbody>
             </table>

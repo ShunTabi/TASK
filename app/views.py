@@ -55,32 +55,30 @@ def index(request):
     dbname = "task.db"
     conn = sql3.connect(dbname)
     cur = conn.cursor()
-    sql = [
-        "CREATE TABLE Genre(\
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
-        genre TEXT NOT NULL UNIQUE,\
-        date DATETIME NOT NULL,\
-        totalNumberOfActivity INTEGER NOT NULL\
-        )",
-        "CREATE TABLE Task(\
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
-        task TEXT NOT NULL UNIQUE,\
-        prior INTEGER NOT NULL,\
-        totalNumberOfActivity integter NOT NULL,\
-        genre_id INTEGER NOT NULL,\
-        date DATETIME NOT NULL,\
-        FOREIGN KEY(genre_id) REFERENCES Genre(id) ON DELETE CASCADE\
-        )",
-        "CREATE TABLE Activity(\
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
-        task_id INTEGER NOT NULL,\
-        today TEXT NOT NULL,\
-        next TEXT NOT NULL,\
-        date DATETIME NOT NULL,\
-        FOREIGN KEY(task_id) REFERENCES Task(id) ON DELETE CASCADE,\
-        UNIQUE(task_id,date)\
-        )",
-    ]
+    sql = ["\
+        CREATE TABLE Genre(\
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
+                genre TEXT NOT NULL UNIQUE,\
+                    date DATETIME NOT NULL\
+                        )","\
+        CREATE TABLE Task(\
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
+                task TEXT NOT NULL UNIQUE,\
+                    prior INTEGER NOT NULL,\
+                        genre_id INTEGER NOT NULL,\
+                            date DATETIME NOT NULL,\
+                                FOREIGN KEY(genre_id) REFERENCES Genre(id) ON DELETE CASCADE\
+                                    )","\
+        CREATE TABLE Activity(\
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\
+                task_id INTEGER NOT NULL,\
+                    today TEXT NOT NULL,\
+                        next TEXT NOT NULL,\
+                            date DATETIME NOT NULL,\
+                                FOREIGN KEY(task_id) REFERENCES Task(id) ON DELETE CASCADE,\
+                                    UNIQUE(task_id,date)\
+                                        )",
+           ]
     for i in range(len(sql)):
         try:
             cur.execute(sql[i])
@@ -96,7 +94,10 @@ def classificationNameSELECT(request):
     if(request.method == "POST"):
         conn = sql3.connect(dbname)
         cur = conn.cursor()
-        sql = "SELECT genre FROM Genre ORDER BY date DESC"
+        sql = "\
+            SELECT genre \
+                FROM Genre \
+                    ORDER BY date DESC"
         cur.execute(sql)
         params = {
             "box": cur.fetchall(),
@@ -115,26 +116,39 @@ def classification(request, page):
         cur = conn.cursor()
         if(method == "SELECT1"):
             lim = request.POST["lim"]
-            sql = "SELECT * FROM Genre ORDER BY date DESC LIMIT ? OFFSET ?"
+            sql = "\
+                SELECT Genre.id,Genre.genre,Genre.date,count(Genre.id) \
+                    FROM Genre \
+                        INNER JOIN Task \
+                            ON Genre.id = Task.genre_id \
+                                GROUP BY Genre.id \
+                                    ORDER BY Genre.date DESC \
+                                        LIMIT ? \
+                                            OFFSET ?"
             box = []
             for i in cur.execute(sql, (lim, (page-1)*int(lim))):
                 box.append([i[0], i[1], dt.strptime(
                     i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
-            sql="SELECT count(*) FROM Genre"
+            sql = "\
+                SELECT count(*) \
+                    FROM Genre"
             cur.execute(sql)
-            mx=cur.fetchall()[0][0]
-            params={
+            mx = cur.fetchall()[0][0]
+            params = {
                 "box": box,
                 "mx": mx,
             }
         elif(method == "SELECT2"):
             Id = request.POST["Id"]
-            sql = "SELECT genre,date FROM Genre WHERE id = ?"
+            sql = "\
+                SELECT genre,date \
+                    FROM Genre \
+                        WHERE id = ?"
             box = []
             for i in cur.execute(sql, (Id,)):
                 box.append(
                     [i[0], dt.strptime(i[1], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
-            params={
+            params = {
                 "box": box,
             }
             print("C")
@@ -142,16 +156,21 @@ def classification(request, page):
             genre = request.POST["genre"]
             date = dt.strptime(request.POST["date"], '%Y-%m-%d')
             if(method == "INSERT"):
-                sql = "INSERT INTO Genre(genre,date,totalNumberOfActivity) VALUES(?,?,?)"
-                cur.execute(sql, (genre, date, 0))
+                sql = "\
+                    INSERT INTO Genre(genre,date) VALUES(?,?,?)"
+                cur.execute(sql, (genre, date))
             elif(method == "UPDATE"):
                 Id = request.POST["Id"]
-                sql = "UPDATE Genre SET genre=?,date=?,totalNumberOfActivity=? WHERE id=?"
+                sql = "\
+                    UPDATE Genre \
+                        SET genre=?,date=?\
+                            WHERE id=?"
                 cur.execute(sql, (genre, date, 0, Id))
             conn.commit()
         elif(method == "DELETE"):
             Id = request.POST["Id"]
-            sql = "DELETE FROM Genre WHERE id = ?"
+            sql = "\
+                DELETE FROM Genre WHERE id = ?"
             cur.execute("PRAGMA foreign_keys=true")
             cur.execute(sql, (Id,))
             conn.commit()
@@ -169,12 +188,34 @@ def task(request, page):
         cur = conn.cursor()
         if(method == "SELECT1"):
             lim = request.POST["lim"]
-            sql = "SELECT Task.id,Task.task,Task.prior,Task.totalNumberOfActivity,Genre.genre,Task.date \
-                FROM Task INNER JOIN Genre ON Task.genre_id = Genre.id ORDER BY Task.prior,Task.date DESC LIMIT ? OFFSET ?"
+            sql = "\
+                SELECT Task.id,Task.task,Task.prior,count(Task.id),Genre.genre,Task.date \
+                    FROM Task \
+                        INNER JOIN Activity \
+                            ON Task.id = Activity.task_id \
+                                INNER JOIN Genre \
+                                    ON Task.genre_id = Genre.id \
+                                        GROUP BY Task.id \
+                UNION \
+                SELECT Task.id,Task.task,Task.prior,0,Genre.genre,Task.date \
+                    FROM Task \
+                        INNER JOIN Genre \
+                            ON Task.genre_id = Genre.id \
+                                WHERE Task.id NOT IN(\
+                                    SELECT Task.id \
+                                        FROM Task \
+                                            INNER JOIN Activity \
+                                                ON Task.id = Activity.task_id \
+                                                    GROUP BY Task.id) \
+                ORDER BY Task.prior,Task.date DESC \
+                    LIMIT ? \
+                        OFFSET ?"
             for i in cur.execute(sql, (lim, (page-1)*int(lim))):
                 box.append([i[0], i[1], i[2], i[3], i[4], dt.strptime(
                     i[5], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
-            sql = "SELECT count(*) FROM task"
+            sql = "\
+                SELECT count(*) \
+                    FROM task"
             cur.execute(sql)
             mx = cur.fetchall()[0][0]
             params = {
@@ -182,7 +223,9 @@ def task(request, page):
                 "mx": mx,
             }
         elif(method == "SELECT2"):
-            sql = "SELECT genre FROM Genre"
+            sql = "\
+                SELECT genre \
+                    FROM Genre"
             for i in cur.execute(sql):
                 box.append([i[0]])
             params = {
@@ -190,7 +233,12 @@ def task(request, page):
             }
         elif(method == "SELECT3"):
             Id = request.POST["Id"]
-            sql = "SELECT Task.task,Task.prior,Genre.genre,Task.date FROM Task INNER JOIN Genre ON Genre.id = Task.genre_id WHERE Task.id = ?"
+            sql = "\
+                SELECT Task.task,Task.prior,Genre.genre,Task.date\
+                     FROM Task \
+                         INNER JOIN Genre \
+                             ON Genre.id = Task.genre_id \
+                                 WHERE Task.id = ?"
             for i in cur.execute(sql, (Id,)):
                 box.append(
                     [i[0], priorChange(i[1]), i[2], dt.strptime(i[3], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
@@ -203,16 +251,21 @@ def task(request, page):
             genre_id = sqlGenre(request.POST["genre"])
             date = dt.strptime(request.POST["date"], '%Y-%m-%d')
             if(method == "INSERT"):
-                sql = "INSERT INTO Task(task,prior,totalNumberOfActivity,genre_id,date) VALUES(?,?,?,?,?)"
-                cur.execute(sql, (task, prior, 0, genre_id, date))
+                sql = "\
+                    INSERT INTO Task(task,prior,genre_id,date) VALUES(?,?,?,?,?)"
+                cur.execute(sql, (task, prior, genre_id, date))
             elif(method == "UPDATE"):
                 Id = request.POST["Id"]
-                sql = "UPDATE Task SET task=?,prior=?,totalNumberOfActivity=?,genre_id=?,date=? WHERE id=?"
-                cur.execute(sql, (task, prior, 0, genre_id, date, Id))
+                sql = "\
+                    UPDATE Task \
+                        SET task=?,prior=?,genre_id=?,date=? \
+                            WHERE id=?"
+                cur.execute(sql, (task, prior, genre_id, date, Id))
             conn.commit()
         elif(method == "DELETE"):
             Id = request.POST["Id"]
-            sql = "DELETE FROM Task WHERE id = ?"
+            sql = "\
+                DELETE FROM Task WHERE id = ?"
             cur.execute("PRAGMA foreign_keys=true")
             cur.execute("PRAGMA foreign_keys=true")
             cur.execute(sql, (Id,))
@@ -225,7 +278,9 @@ def task(request, page):
 def taskNameSELECT2(request):
     conn = sql3.connect(dbname)
     cur = conn.cursor()
-    sql = "SELECT task FROM Task"
+    sql = "\
+        SELECT task \
+            FROM Task"
     cur.execute(sql)
     params = {
         "box": cur.fetchall()
@@ -246,16 +301,38 @@ def activity(request, txt, page):
             lim = request.POST["lim"]
             task = txt
             if(task == "ALL"):
-                sql = "SELECT count(*) FROM Activity"
+                sql = "\
+                    SELECT count(*) \
+                        FROM Activity"
                 cur.execute(sql)
                 mx = cur.fetchall()[0]
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id ORDER BY Activity.date DESC LIMIT ? OFFSET ?"
+                sql = "\
+                    SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next \
+                        FROM Activity INNER \
+                            JOIN Task \
+                                ON Activity.task_id = Task.id \
+                                    ORDER BY Activity.date DESC \
+                                        LIMIT ? \
+                                            OFFSET ?"
                 output = cur.execute(sql, (lim, (page-1)*int(lim)))
             else:
-                sql = "SELECT count(*) FROM Activity INNER JOIN Task On Task.id = Activity.task_id WHERE Task.task = ?"
+                sql = "\
+                    SELECT count(*) \
+                        FROM Activity \
+                            INNER JOIN Task \
+                                ON Task.id = Activity.task_id \
+                                    WHERE Task.task = ?"
                 cur.execute(sql, (txt,))
                 mx = cur.fetchall()[0]
-                sql = "SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next FROM Activity INNER JOIN Task ON Activity.task_id = Task.id WHERE Task.task = ? ORDER BY Activity.date DESC LIMIT ? OFFSET ?"
+                sql = "\
+                    SELECT Activity.id,Activity.date,Task.task,Activity.today,Activity.next \
+                        FROM Activity \
+                            INNER JOIN Task \
+                                ON Activity.task_id = Task.id \
+                                    WHERE Task.task = ? \
+                                        ORDER BY Activity.date DESC \
+                                            LIMIT ? \
+                                                OFFSET ?"
                 output = cur.execute(sql, (task, lim, (page-1)*int(lim)))
             for i in output:
                 box.append([i[0], dt.strptime(
@@ -265,7 +342,9 @@ def activity(request, txt, page):
                 "mx": mx,
             }
         elif(method == "SELECT2"):
-            sql = "SELECT task FROM Task"
+            sql = "\
+                SELECT task \
+                    FROM Task"
             for i in cur.execute(sql):
                 box.append(i)
             params = {
@@ -273,7 +352,12 @@ def activity(request, txt, page):
             }
         elif(method == "SELECT3"):
             Id = page
-            sql = "SELECT Task.task,Activity.today,Activity.next,Activity.date FROM Activity INNER JOIN Task ON Task.id = Activity.task_id WHERE Activity.id=?"
+            sql = "\
+                SELECT Task.task,Activity.today,Activity.next,Activity.date \
+                    FROM Activity \
+                        INNER JOIN Task \
+                            ON Task.id = Activity.task_id \
+                                WHERE Activity.id=?"
             for i in cur.execute(sql, (Id,)):
                 box.append([i[0], i[1], i[2], dt.strptime(
                     i[3], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")])
@@ -284,20 +368,29 @@ def activity(request, txt, page):
             today = request.POST["today"]
             Next = request.POST["next"]
             date = dt.strptime(request.POST["date"], '%Y-%m-%d')
-            sql = "SELECT id FROM Task WHERE task = ?"
+            sql = "\
+                SELECT id \
+                    FROM Task \
+                        WHERE task = ?"
             cur.execute(sql, (request.POST["task"],))
             task_id = cur.fetchall()[0][0]
             if(method == "INSERT"):
-                sql = "INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
+                sql = "\
+                    INSERT INTO Activity(task_id,today,next,date) VALUES(?,?,?,?)"
                 cur.execute(sql, (task_id, today, Next, date))
             elif(method == "UPDATE"):
                 Id = request.POST["Id"]
-                sql = "UPDATE Activity SET task_id=?,today=?,next=?,date=? WHERE id=?"
+                sql = "\
+                    UPDATE Activity \
+                        SET task_id=?,today=?,next=?,date=? \
+                            WHERE id=?"
                 cur.execute(sql, (task_id, today, Next, date, Id))
             conn.commit()
         elif(method == "DELETE"):
             Id = request.POST["Id"]
-            sql = "DELETE FROM Activity WHERE id = ?"
+            sql = "\
+                DELETE FROM Activity \
+                    WHERE id = ?"
             cur.execute("PRAGMA foreign_keys=true")
             cur.execute(sql, (Id,))
             conn.commit()

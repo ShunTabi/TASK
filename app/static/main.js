@@ -40,7 +40,7 @@ const router = new VueRouter({
                         Id: 0,
                         FORM: false,
                         limBox: LimBox,
-                        lim: 10,//LimBox[1],
+                        lim: 9,//LimBox[1],
                         prior1: "ALL",
                         mx: 1,
                     }
