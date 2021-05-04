@@ -136,9 +136,36 @@ def classification(request, page):
                     LIMIT ? \
                         OFFSET ?"
             box = []
-            for i in cur.execute(sql, (lim, (page-1)*int(lim))):
+            for i in list(cur.execute(sql, (lim, (page-1)*int(lim)))):
                 box.append([i[0], i[1], dt.strptime(
                     i[2], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d"), i[3]])
+            sql = "\
+                SELECT Genre.id,Genre.date,count(Genre.id) \
+                    FROM Genre \
+                        INNER JOIN Task \
+                            On Genre.id = Task.genre_id \
+                                INNER JOIN Activity \
+                                    On Task.id = Activity.task_id \
+                                        GROUP BY Genre.id \
+                UNION \
+                SELECT Genre.id,Genre.date,0 \
+                    FROM Genre \
+                        WHERE Genre.id NOT IN( \
+                            SELECT Genre.id \
+                                FROM Genre \
+                                    INNER JOIN Task \
+                                        On Genre.id = Task.genre_id \
+                                            INNER JOIN Activity \
+                                                On Task.id = Activity.task_id \
+                                                    GROUP BY Genre.id \
+                                                        ) \
+                ORDER BY Genre.date DESC \
+                    LIMIT ? \
+                        OFFSET ?"
+            j = 0
+            for i in list(cur.execute(sql, (lim, (page-1)*int(lim)))):
+                box[j].append(i[2])
+                j += 1
             sql = "\
                 SELECT count(*) \
                     FROM Genre"

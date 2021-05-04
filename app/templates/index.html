@@ -121,7 +121,7 @@
                         <td scope="row" v-else-if="b[2] == 2">　●</td>
                         <td scope="row" v-else-if="b[2] == 3">　▲</td>
                         <td scope="row" v-else-if="b[2] == 4">　済</td>
-                        <td scope="row">[[ b[3] ]]</td>
+                        <td scope="row">[[ pst(b[3],3) ]]</td>
                         <td scope="row">[[ b[4] ]]</td>
                         <td scope="row"><button @click="axiosSELECT3( b[0] )">更新</button></td>
                         <td scope="row"><button @click="axiosDELETE( b[0] )">削除</button></td>
@@ -361,7 +361,7 @@
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col" v-for="i in ['種別','日付','更新','削除']">[[ i ]]</th>
+                        <th scope="col" v-for="i in ['種別','日付','更新','削除','活動/作業']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -372,7 +372,7 @@
                         <td scope="row">[[ b[2] ]]</td>
                         <td scope="row"><button @click="axiosSELECT2( b[0] )">更新</button></td>
                         <td scope="row"><button @click="axiosDELETE( b[0] )">削除</button></td>
-                        <td scope="row">[[ b[3] ]]</td>
+                        <td scope="row">[[ pst(b[ 4 ],3) ]] / [[ pst(b[ 3 ],3) ]]</td>
                     </tr>
                 </tbody>
             </table>

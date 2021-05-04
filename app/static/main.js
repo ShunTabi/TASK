@@ -14,9 +14,9 @@ function test1(tg) {
     // alert(tg);
     // console.log(tg);
 }
-function test2(tg) {
-    alert(tg);
-    console.log(tg);
+function PST(tg, num) {
+    const result = tg.toString().padStart(num, "-");
+    return result;
 }
 // axios.defaults.xsrfCookieName = "csrftoken";
 // axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -49,6 +49,9 @@ const router = new VueRouter({
                     PP: function (tg) {
                         this.$router.push(`/task/${parseInt(this.$route.params.page) + tg}`);
                         this.axiosSELECT1();
+                    },
+                    pst: function (tg, num) {
+                        return PST(tg, num);
                     },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
@@ -418,6 +421,12 @@ const router = new VueRouter({
                         this.$router.push(`/classification/${parseInt(this.$route.params.page) + tg}`);
                         this.axiosSELECT1();
                     },
+                    FC: function () {
+                        this.FORM = !this.FORM;
+                    },
+                    pst: function (tg, num) {
+                        return PST(tg, num);
+                    },
                     axiosSELECT1: function () {
                         const params = new URLSearchParams();
                         params.append("method", "SELECT1");
@@ -487,9 +496,6 @@ const router = new VueRouter({
                                 test2(res); F
                             });
                     },
-                    FC: function () {
-                        this.FORM = !this.FORM;
-                    }
                 },
                 created: function () {
                     this.date = getTime();
