@@ -4,6 +4,7 @@ body {
     user-select: none;
     font-size: 13.5px;
     margin-top: 20px;
+    background-color: rgba(0,0,0,0.7);
     /* background-color: rgba(169,169,169,0.6); */
 }
 
@@ -13,15 +14,27 @@ textarea {
     font-size: 12px;
 }
 
+body,th,td,pre,a{
+    color:white;
+}
+
 pre {
     font-family: "Yu Mincho";
     font-size: 12px;
 }
 
 .previous, .next {
-    width: 25px;
-    height: 25px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
+    background-color: white;
+    border-radius:5px;
+}
+
+nav a a button{
+    border:none;
+    background-color: black;
+    color:white;
 }
 
 nav a a {
@@ -29,5 +42,11 @@ nav a a {
 }
 
 h3 {
+    cursor: pointer;
+}
+
+.graph{
+    width:720px;
+    height:450px;
     cursor: pointer;
 }

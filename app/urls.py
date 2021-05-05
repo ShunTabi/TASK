@@ -24,4 +24,5 @@ urlpatterns = [
     path("task/<int:page>", views.task),
     path("taskNameSELECT2", views.taskNameSELECT2),
     path("activity/<str:txt>/<int:page>", views.activity),
+    path("graph", views.Graph),
 ]

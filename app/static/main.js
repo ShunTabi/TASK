@@ -493,7 +493,7 @@ const router = new VueRouter({
                                 this.axiosSELECT1();
                             })
                             .catch(res => {
-                                test2(res); F
+                                test2(res);
                             });
                     },
                 },
@@ -504,12 +504,22 @@ const router = new VueRouter({
             }
         },
         {
-            path: "/error",
+            path: "/graph",
             component: {
-                template: "#error",
+                template: "#graph",
                 delimiters: ["[[", "]]"],
                 methods: {
+                    Axios: function () {
+                        axios.post("http://localhost:8000/app/graph")
+                            .then(res => {
+                            })
+                            .catch(res => {
+                                test2(res);
+                            });
+                    }
                 },
+                created: function () {
+                }
             }
         },
     ]

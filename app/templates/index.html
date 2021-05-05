@@ -33,7 +33,7 @@
             <router-link to="/task/1">作業一覧</router-link> |
             <router-link to="/activity/1">活動の履歴</router-link> |
             <router-link to="/classification/1">種別一覧</router-link> |
-            <router-link to="/top">グラフ表示</router-link> |
+            <router-link to="/graph">グラフ表示</router-link> |
             <router-link to="/task/1">済み作業</router-link>
         </nav>
         <hr>
@@ -43,7 +43,7 @@
     <script type="text/x-template" id="task">
         <section>
             <h3 @click="FC">作業一覧</h3>
-            <table class="table table-striped" v-if="FORM">
+            <table class="table" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col" v-for="i in ['項','項目','内容']">[[ i ]]</th>
@@ -104,12 +104,12 @@
                     </a>
                 </a>
             </nav>
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col" v-for="i in ['作業','優先度','活動数','種別','更新','削除','日付']">[[ i ]]</th>
+                        <th scope="col" v-for="i in ['作業','優先度','活動','種別','更新','削除','日付']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -135,7 +135,7 @@
     <script type="text/x-template" id="activity1">
         <section>
             <h3 @click="FC">活動の履歴</h3>
-            <table class="table table-striped" v-if="FORM">
+            <table class="table" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -202,7 +202,7 @@
                     </a>
                 </a>
             </nav>
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -229,7 +229,7 @@
     <script type="text/x-template" id="activity2">
         <section>
             <h3 @click="FC">[[ task ]]</h3>
-            <table class="table table-striped" v-if="FORM">
+            <table class="table" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col" v-for="i in ['項','項目','内容']">[[ i ]]</th>
@@ -284,7 +284,7 @@
                     </a>
                 </a>
             </nav>
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
@@ -313,7 +313,7 @@
     <script type="text/x-template" id="classification">
         <section>
             <h3 @click="FC">種別一覧</h3>
-            <table class="table table-striped" v-if="FORM">
+            <table class="table" v-if="FORM">
                 <thead>
                     <tr>
                         <th scope="col" v-for="i in ['項','項目','内容']">[[ i ]]</th>
@@ -356,12 +356,12 @@
                     </a>
                 </a>
             </nav>
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">項</th>
                         <th scope="col" class="collapse">ID</th>
-                        <th scope="col" v-for="i in ['種別','日付','更新','削除','活動/作業']">[[ i ]]</th>
+                        <th scope="col" v-for="i in ['種別','活動/作業','更新','削除','日付']">[[ i ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -369,40 +369,20 @@
                         <td scope="row">[[ index+1 ]]</td>
                         <td scope="row" class="collapse">[[ b[0] ]]</td>
                         <td scope="row">[[ b[1] ]]</td>
-                        <td scope="row">[[ b[2] ]]</td>
+                        <td scope="row">[[ pst(b[ 4 ],3) ]] / [[ pst(b[ 3 ],3) ]]</td>
                         <td scope="row"><button @click="axiosSELECT2( b[0] )">更新</button></td>
                         <td scope="row"><button @click="axiosDELETE( b[0] )">削除</button></td>
-                        <td scope="row">[[ pst(b[ 4 ],3) ]] / [[ pst(b[ 3 ],3) ]]</td>
+                        <td scope="row">[[ b[2] ]]</td>
                     </tr>
                 </tbody>
             </table>
         </section>
     </script>
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
-    <script type="text/x-template" id="error">
+    <script type="text/x-template" id="graph">
         <section>
-            <h3>エラー表示</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col" v-for="i in ['項','日付','','']">[[ i ]]</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td scope="row">1</td>
-                        <td scope="row">2021/4/17</td>
-                        <td scope="row">種別</td>
-                        <td scope="row">だよ</td>
-                    </tr>
-                    <tr>
-                        <td scope="row">2</td>
-                        <td scope="row">2021/4/17</td>
-                        <td scope="row">日付</td>
-                        <td scope="row">だよ</td>
-                    </tr>
-                </tbody>
-            </table>
+            <h3>グラフ出力</h3>
+            <img src="{% static 'output.png' %}" @click="Axios" class="graph"/>
         </section>
     </script>
 

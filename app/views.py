@@ -5,9 +5,13 @@ import pandas as pd
 import sqlite3 as sql3
 from datetime import datetime as dt
 
+
 # 定義
 dbname = "task.db"
 msg = "Hello World"
+color = ["#7fffd4", "#00ff7f", "#7cfc00", "#ffff00", "#ffd700", "#ff0000", "#ff1493",
+         "#ffc0cb", "#ff00ff", "#9932cc", "#800080", "#4b0082", "#191970", "#0000ff", "#00ffff"]
+plt.rcParams["font.family"] = "Yu Mincho"
 
 
 def priorChange(tg):
@@ -434,3 +438,39 @@ def activity(request, txt, page):
         cur.close()
         conn.close()
     return JsonResponse(params)
+
+
+def Graph(request):
+    conn = sql3.connect(dbname)
+    cur = conn.cursor()
+    sql = "\
+        SELECT Task.id,Task.task,strftime('%Y-%m-01',Activity.date) AS date,count(Task.id) \
+            FROM Task \
+                INNER JOIN Activity \
+                    ON Task.id = Activity.task_id \
+                        GROUP BY strftime('%Y-%m-01',Activity.date),Task_id"
+    box = list(cur.execute(sql))
+    cur.close()
+    conn.close()
+    df = pd.DataFrame(box, columns=["id", "task", "date", "num"])
+    for i in range(len(df["date"])):
+        df["date"][i] = pd.to_datetime(df["date"])[i].strftime('%Y-%m')
+    df = df.set_index("date")
+    tg1 = pd.DataFrame()
+    tName = list(set(df["task"]))
+    for i in range(len(tName)):
+        tg = pd.DataFrame(df[df["task"] == tName[i]])["num"]
+        if(i == 0):
+            tg1 = tg
+        else:
+            tg1 = pd.concat([tg1, tg], axis=1).fillna(0).sort_index()
+    tg1.columns = tName
+    plt.figure(figsize=(8, 5))
+    for i in range(len(tName)):
+        plt.bar(tg1.index, tg1[tName[i]], label=tName[i], bottom=tg1[tg1.columns[0:i]].sum(
+            axis=1), color=color[i], width=0.35)
+    plt.xlabel("Date")
+    plt.ylabel("Price")
+    plt.legend(loc="upper left")
+    plt.savefig(r'E:\desktop\task\app\static\output.png')
+    return HttpResponse("Graph")
