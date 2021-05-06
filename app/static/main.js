@@ -508,10 +508,15 @@ const router = new VueRouter({
             component: {
                 template: "#graph",
                 delimiters: ["[[", "]]"],
+                data: function () {
+                    return {
+                    }
+                },
                 methods: {
                     Axios: function () {
                         axios.post("http://localhost:8000/app/graph")
                             .then(res => {
+                                alert("OK!");
                             })
                             .catch(res => {
                                 test2(res);
@@ -519,6 +524,7 @@ const router = new VueRouter({
                     }
                 },
                 created: function () {
+
                 }
             }
         },

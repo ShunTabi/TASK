@@ -46,7 +46,6 @@ h3 {
 }
 
 .graph{
-    width:720px;
-    height:450px;
-    cursor: pointer;
+    width:1000px;
+    height:500px;
 }

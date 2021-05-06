@@ -381,8 +381,8 @@
     <!--11111111111111111111111111111111111111111111111111111111111111111111111111111111111111-->
     <script type="text/x-template" id="graph">
         <section>
-            <h3>グラフ出力</h3>
-            <img src="{% static 'output.png' %}" @click="Axios" class="graph"/>
+            <h3 @click="Axios" >グラフ表示</h3>
+            <img src="{% static 'output.png' %}" class="graph"/>
         </section>
     </script>
 
