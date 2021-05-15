@@ -33,8 +33,7 @@
             <router-link to="/task/1">作業一覧</router-link> |
             <router-link to="/activity/1">活動の履歴</router-link> |
             <router-link to="/classification/1">種別一覧</router-link> |
-            <router-link to="/graph">グラフ表示</router-link> |
-            <router-link to="/task/1">済み作業</router-link>
+            <router-link to="/graph">グラフ表示</router-link>
         </nav>
         <hr>
         <router-view></router-view>
@@ -59,7 +58,7 @@
                         <td scope="row">
                             <select v-model="prior">
                                 <option disabled selected>選択してください</option>
-                                <option v-for="i in ['高い','普通','低い','済み']">[[ i ]]</option>
+                                <option v-for="i in ['高い','普通','低い','メモ','済み']">[[ i ]]</option>
                             </select>
                         </td>
                     </tr>
@@ -88,7 +87,7 @@
             </table>
             <nav>
                 <a>
-                    優先度:
+                    優先度：
                     <select v-model="prior1">
                         <option v-for="m in ['ALL','★','●','▲','済']">[[ m ]]</option>
                     </select>
@@ -120,7 +119,8 @@
                         <td scope="row" v-if="b[2] == 1">　★</td>
                         <td scope="row" v-else-if="b[2] == 2">　●</td>
                         <td scope="row" v-else-if="b[2] == 3">　▲</td>
-                        <td scope="row" v-else-if="b[2] == 4">　済</td>
+                        <td scope="row" v-else-if="b[2] == 4">　―</td>
+                        <td scope="row" v-else-if="b[2] == 5">　済</td>
                         <td scope="row">[[ pst(b[3],3) ]]</td>
                         <td scope="row">[[ b[4] ]]</td>
                         <td scope="row"><button @click="axiosSELECT3( b[0] )">更新</button></td>

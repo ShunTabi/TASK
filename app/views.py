@@ -25,6 +25,8 @@ def priorChange(tg):
     elif(tg == 3):
         return "低い"
     elif(tg == 4):
+        return "メモ"
+    elif(tg == 5):
         return "済み"
     elif(tg == "高い"):
         return 1
@@ -32,8 +34,10 @@ def priorChange(tg):
         return 2
     elif(tg == "低い"):
         return 3
-    elif(tg == "済み"):
+    elif(tg == "メモ"):
         return 4
+    elif(tg == "済み"):
+        return 5
 
 
 def sqlGenre(tg):
