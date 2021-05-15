@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+import seaborn as sns
 import pandas as pd
 import sqlite3 as sql3
 from datetime import datetime as dt
@@ -12,6 +14,7 @@ msg = "Hello World"
 color = ["#7fffd4", "#00ff7f", "#7cfc00", "#ffff00", "#ffd700", "#ff0000", "#ff1493",
          "#ffc0cb", "#ff00ff", "#9932cc", "#800080", "#4b0082", "#191970", "#0000ff", "#00ffff"]
 plt.rcParams["font.family"] = "Yu Mincho"
+mpl.use('Agg')
 
 
 def priorChange(tg):
@@ -22,6 +25,8 @@ def priorChange(tg):
     elif(tg == 3):
         return "低い"
     elif(tg == 4):
+        return "メモ"
+    elif(tg == 5):
         return "済み"
     elif(tg == "高い"):
         return 1
@@ -29,8 +34,10 @@ def priorChange(tg):
         return 2
     elif(tg == "低い"):
         return 3
-    elif(tg == "済み"):
+    elif(tg == "メモ"):
         return 4
+    elif(tg == "済み"):
+        return 5
 
 
 def sqlGenre(tg):
@@ -444,33 +451,37 @@ def Graph(request):
     conn = sql3.connect(dbname)
     cur = conn.cursor()
     sql = "\
-        SELECT Task.id,Task.task,strftime('%Y-%m-01',Activity.date) AS date,count(Task.id) \
+        SELECT Task.id,Task.task,strftime('%Y-%m',Activity.date) AS date,count(Task.id) \
             FROM Task \
                 INNER JOIN Activity \
                     ON Task.id = Activity.task_id \
-                        GROUP BY strftime('%Y-%m-01',Activity.date),Task_id"
+                        GROUP BY strftime('%Y-%m',Activity.date),Task_id"
     box = list(cur.execute(sql))
     cur.close()
     conn.close()
-    df = pd.DataFrame(box, columns=["id", "task", "date", "num"])
-    for i in range(len(df["date"])):
-        df["date"][i] = pd.to_datetime(df["date"])[i].strftime('%Y-%m')
-    df = df.set_index("date")
-    tg1 = pd.DataFrame()
+    df = pd.DataFrame(box).set_index(2)
+    df.columns = ["id", "task", "num"]
     tName = list(set(df["task"]))
+    tg1 = pd.DataFrame()
     for i in range(len(tName)):
-        tg = pd.DataFrame(df[df["task"] == tName[i]])["num"]
+        tg = df[df["task"] == tName[i]]["num"]
         if(i == 0):
             tg1 = tg
         else:
-            tg1 = pd.concat([tg1, tg], axis=1).fillna(0).sort_index()
+            tg1 = pd.concat([tg1, tg], axis=1)
+    tg1 = tg1.fillna(0).sort_index()
     tg1.columns = tName
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(10, 5))
+    sns.set_palette('pastel')
+    # sns.set_palette('rocket')
+    x = tg1.index
     for i in range(len(tName)):
-        plt.bar(tg1.index, tg1[tName[i]], label=tName[i], bottom=tg1[tg1.columns[0:i]].sum(
-            axis=1), color=color[i], width=0.35)
-    plt.xlabel("Date")
-    plt.ylabel("Price")
-    plt.legend(loc="upper left")
-    plt.savefig(r'E:\desktop\task\app\static\output.png')
-    return HttpResponse("Graph")
+        tg = tName[i]
+        plt.bar(x, tg1[tName[i]], label=tg,
+                bottom=tg1[tg1.columns[0:i]].sum(axis=1))
+    plt.xlabel("Date", fontsize=11)
+    plt.ylabel("Activity", fontsize=11)
+    plt.legend(loc="upper left", fontsize=11)
+    File = r'E:\desktop\task\app\static\output.png'
+    plt.savefig(File)
+    return HttpResponse("Hello")
